@@ -1,0 +1,45 @@
+title: GT - Structural Engineering and Machine Learning
+author: Gledson Tondo
+email: contact@gledsontondo.com
+description: This is a collection of scientific interests and results that I get during my research.
+show_excerpts: true 
+
+sass:
+  sass_dir: _sass
+tondo:
+  navigation:
+   - title: Gaussian process
+     url: "/GaussianProcess"
+  name: Gledson Tondo
+  tagline: Structural Engineering<br>&<br>Machine Learning
+  date_format: "%b %-d, %Y"
+  sitemap: true 
+  search: true 
+  dark_mode: true 
+  portfolio_image: "assets/portfolio3.png" 
+  html_lang: "en" 
+  
+  condensed_mobile:
+    #- home
+    - page
+    - post
+  # generate social links in footer
+  social_links:
+    github:  gledsonrt
+    linkedIn: in/gledson-tondo-782b5a43
+    researchgate: Gledson-Tondo
+    mail: contact@gledsontondo.com
+    uni: https://www.uni-weimar.de/Bauing/MSK/
+
+# Build settings
+theme: tondo
+
+plugins:
+  - jekyll-seo-tag
+#  - jekyll-feed
+
+# Latex support
+markdown: kramdown
+kramdown:
+   math_engine: mathjax
+   syntax_highlighter: rouge
