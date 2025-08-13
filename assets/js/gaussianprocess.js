@@ -5,7 +5,7 @@ But really, I can't be bothered to fix them, this was created to showcase a simp
 For some real background and deep understanding I'd point you to Rasmussen's incredible book on GPs (available online at http://www.gaussianprocess.org/gpml/)
 But, if you are still here, then just feel free to take a look around the code, and if you fix something and want to contribute, just send me an e-mail! */
 
-var plotDeltaX = 0.2;
+var plotDeltaX = 0.05;
 var jitter = 1.0e-15
 
 function sqexp(logS, logT, x1, x2){
@@ -72,8 +72,8 @@ function buildPlot(){
 		z: z,
 		type: 'heatmap',
 		colorscale: [['0.0', 'rgb(255, 255, 255, 0.5)'], ['1.0', 'rgb(255, 255, 255, 0.5)']],
-		xgap: 1,
-		ygap: 1,
+		xgap: 0.05,
+		ygap: 0.05,
 		hoverinfo:"x+y",
 		showscale: false,
 		showlegend: false,
@@ -258,8 +258,8 @@ function logLik(n,m,X,con){
 	con[3] = -X[1] + Math.log(10)
 	// I don't wanna deal with noise now to be honest
 	// just keep it small enough and pretend data is high fidelity
-	con[4] = X[2] - Math.log(1e-18)
-	con[5] = -X[2] + Math.log(1e-16)
+	con[4] = X[2] - Math.log(1e-10)
+	con[5] = -X[2] + Math.log(20)
 	var dataX = myPlot.data[9].x
 	var dataY = myPlot.data[9].y
 	var predX = myPlot.data[1].x

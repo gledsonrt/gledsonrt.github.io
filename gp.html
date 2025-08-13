@@ -1,41 +1,67 @@
+---
+title: None
+---
+<!DOCTYPE html>
 <head>
+	
+	
    <script src="https://cdn.plot.ly/plotly-1.2.0.min.js"></script>
-   <script src="gaussianprocess.js"></script>
-   <script src="math.js"></script>
-   <script src="Cobyla.js"></script>
+   <script src="/assets/js/gaussianprocess.js"></script>
+   <script src="/assets/js/math.js"></script>
+   <script src="/assets/js/Cobyla.js"></script>
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-   <script src="multivariate-normal.js"></script>
+   
+   <style>
+	  .table {
+	  th, td {
+		padding: 5px 10px;
+		border: 0px solid #dfe2e5;
+	  }
+	  th {
+		font-family: "Merriweather", sans-serif;
+		font-weight: 300;
+		font-size: 14px;
+		color: #222;
+		line-height: 1.0em;
+	  }
+	}
+   </style>
+
 </head>
 
-<body>
-<div id="myDiv" style="width:100%;height:500px;"></div>
-<input type="button" id="resetDataButton" value="Reset data" onclick="resetData()">
+<body style="background-color: #ffffff;">
+<div id="myDiv" style="width:100%;height:480px;"></div>
 
-<p><b>Gaussian Process Information</b></p>
-<table style="width:100%">
-	<tr>
-		<th style="text-align:left"><p>Kernel standard deviation:</p></th>
+
+<input type="button" id="resetDataButton" value="Reset data" onclick="resetData()" style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;">
+
+<p style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;">Gaussian Process Information</p>
+
+<table>
+	<tr style="padding: 5px 10px;border: 0px solid #dfe2e5;">
+		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;"><p>Kernel standard deviation:</p></th>
 		<th><input id="PosteriorSigmaVal" /></th>
 		<th><input type="range" id="PosteriorSigma" name="PosteriorSigma" min="0" max="1000" ></th>
 	</tr>
-	<tr>
-		<th style="text-align:left"><p>Kernel lengthscale:</p></th>
+	<tr style="padding: 5px 10px;border: 0px solid #dfe2e5;">
+		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;"><p>Kernel lengthscale:</p></th>
 		<th><input id="PosteriorLVal" /></th>
 		<th><input type="range" id="PosteriorLengthscale" name="PosteriorLengthscale" min="0" max="1000" ></th>
 	</tr>
-		<th style="text-align:left"><p>Dataset squared noise:</p></th>
+	<tr style="padding: 5px 10px;border: 0px solid #dfe2e5;">
+		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;"><p>Dataset squared noise:</p></th>
 		<th><input id="PosteriorNoiseVal" /></th>
 		<th><input type="range" id="PosteriorNoise" name="PosteriorNoise" min="0" max="1000" ></th>
 	</tr>
 </table>
 
-<br><input type="button" id="optimizeValues" value="Optimize values" onclick="optVals()">
+<br><input type="button" id="optimizeValues" value="Optimize values" onclick="optVals()" style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;">
 
 
 <script>
 	var initSigma = 0.5;
 	var initLen = 1.0;
-	var initNoise = 1.0e-17;
+	var initNoise = 1.0e-3;
 	function LogSlider(options) {
 	   options = options || {};
 	   this.minpos = options.minpos || 0;
@@ -85,10 +111,10 @@
 	$('#PosteriorLVal').val(initLen).trigger("keyup");
 
 	// PostNoise:
-	var logn = new LogSlider({maxpos: 1000, minval: 1.0e-18, maxval: 1.0e-16});
+	var logn = new LogSlider({maxpos: 1000, minval: 1.0e-10, maxval: 10});
 	$('#PosteriorNoise').on('change', function() {
 	   var val = logn.value(+$(this).val());
-	   $('#PosteriorNoiseVal').val(val.toFixed(20));
+	   $('#PosteriorNoiseVal').val(val.toFixed(15));
 	   try{updateVal()}catch{}
 	});
 	$('#PosteriorNoiseVal').on('keyup', function() {

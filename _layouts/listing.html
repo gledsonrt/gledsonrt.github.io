@@ -1,0 +1,76 @@
+---
+layout: default
+---
+
+{%- if site.posts.size > 0 -%}
+  <ul class="posts">
+    <li class="posts-labelgroup" id="posts-labelgroup">
+      <h1 id="posts-label">posts</h1>
+      {% if site.tondo.search %}
+      <div class="search-container">
+        <div class="search-section">
+          <i class="icon-search"></i>
+          <input type="text" name="search" id="searchbar" autocomplete="off" aria-label="search in posts">
+        </div>
+        <div class="search-results" id="search-results" data-placeholder="No Results" style="display: none;"></div>
+      </div>
+      {% endif %}
+    </li>
+	
+	{%- if page.title -%}
+		<div class="post-meta">
+		<h1 class="page-heading"> Tag: </h1> 
+		<ul class="post-categories"> <li> {{ page.title }} </li> </ul>
+		</div>
+		<hr style="height:2px;border-width:0;color:gray;background-color:gray">
+	{%- endif -%}
+
+    {%- for post in site.posts -%}
+		{%- assign show = 0 -%}
+		{%- for tag in post.categories -%}
+			{%- if tag == page.title -%}
+				{%- assign show = 1 -%}
+			{%- endif -%}
+		{%- endfor -%}
+		{%- if show == 1 -%}
+		  <li>
+			{%- assign date_format = site.tondo.date_format | default: "%b %-d, %Y" -%}
+			<a class="post-link" href="{{ post.url | relative_url }}">
+			  <h2 class="post-title">{{ post.title | escape }}</h2>
+			</a>
+			<div class="post-meta">
+			  <div class="post-date">
+				<i class="icon-calendar"></i>
+				{{ post.date | date: date_format }}
+			  </div>
+			  {%- if post.categories.size > 0-%}
+			  <ul class="post-categories">
+				{%- for tag in post.categories -%}
+				<li>
+				 <a href="{{ tag | remove: " " }}" class="post-categories" style="text-decoration:none">
+				  {{ tag }}
+				</a>
+				</li>
+				{%- endfor -%}
+			  </ul>
+			  {%- endif -%}
+			</div>
+			<div class="post">
+			  {%- if site.show_excerpts -%}
+				{{ post.excerpt }}
+			  {%- endif -%}
+			</div>
+		  </li>		
+		{%- endif -%}
+    {%- endfor -%}
+
+<br><br><br><hr style="height:2px;border-width:0;color:gray;background-color:gray">
+<h2> About this blog </h2>
+<p style="font-size: 90%;">This is a collection of results that arise from my work at the <a href="https://www.uni-weimar.de/en/civil-engineering/chairs/modelling-and-simulation-of-structures/news/" target="_blank">Bauhaus-Universität Weimar</a>. For questions or discussions, you can always find me <a href="mailto:gledson.rodrigo.tondo@uni-weimar.de">here</a>!</p>
+
+  </ul>
+
+  <!-- <p class="feed-subscribe"><svg class="svg-icon orange">
+		<use xlink:href="{{ '/assets/minima-social-icons.svg#rss' | relative_url }}"></use>
+	</svg><a href="{{ "/feed.xml" | relative_url }}">Subscribe</a></p> -->
+{%- endif -%}

@@ -1,0 +1,19 @@
+---
+---
+
+@import "plain";
+
+{% if site.tondo.search %}
+  @import "search";
+{% endif %}
+
+{%- if site.tondo.dark_mode -%}
+  @import "toggle";
+  @import "dark";
+{%- endif -%}
+
+.center-image
+{
+    margin: 0 auto;
+    display: block;
+}
