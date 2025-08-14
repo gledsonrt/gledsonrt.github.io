@@ -19,50 +19,23 @@ layout: default
 	
 	{%- if page.title -%}
 		<div class="post-meta">
-		<h1 class="page-heading"> Tag: </h1> 
-		<ul class="post-categories"> <li> {{ page.title }} </li> </ul>
+		<h1 class="page-heading"> Tag: </h1> 		
+		<ul class="post-categories"> <li> {{ page.title }} </li> </ul>		
 		</div>
 		<hr style="height:2px;border-width:0;color:gray;background-color:gray">
 	{%- endif -%}
 
-    {%- for post in site.posts -%}
-		{%- assign show = 0 -%}
-		{%- for tag in post.categories -%}
-			{%- if tag == page.title -%}
-				{%- assign show = 1 -%}
-			{%- endif -%}
-		{%- endfor -%}
-		{%- if show == 1 -%}
-		  <li>
-			{%- assign date_format = site.tondo.date_format | default: "%b %-d, %Y" -%}
-			<a class="post-link" href="{{ post.url | relative_url }}">
-			  <h2 class="post-title">{{ post.title | escape }}</h2>
-			</a>
-			<div class="post-meta">
-			  <div class="post-date">
-				<i class="icon-calendar"></i>
-				{{ post.date | date: date_format }}
-			  </div>
-			  {%- if post.categories.size > 0-%}
-			  <ul class="post-categories">
-				{%- for tag in post.categories -%}
-				<li>
-				 <a href="{{ tag | remove: " " }}" class="post-categories" style="text-decoration:none">
-				  {{ tag }}
-				</a>
-				</li>
-				{%- endfor -%}
-			  </ul>
-			  {%- endif -%}
-			</div>
-			<div class="post">
-			  {%- if site.show_excerpts -%}
-				{{ post.excerpt }}
-			  {%- endif -%}
-			</div>
-		  </li>		
-		{%- endif -%}
-    {%- endfor -%}
+	{%- for post in site.posts -%}
+	{%- assign show = 0 -%}
+	{%- for tag in post.categories -%}
+	{%- if tag == page.title -%}
+	{%- assign show = 1 -%}
+	{%- endif -%}
+	{%- endfor -%}
+	{%- if show == 1 -%}
+	<li> {%- assign date_format = site.tondo.date_format | default: "%b %-d, %Y" -%} <a class="post-link" href="{{ post.url | relative_url }}"> <h2 class="post-title">{{ post.title | escape }}</h2> </a> <div class="post-meta"> <div class="post-date"> <i class="icon-calendar"></i> {{ post.date | date: date_format }} </div> {%- if post.categories.size > 0-%} <ul class="post-categories"> {%- for tag in post.categories -%} <li> <a href="{{ tag | remove: " " }}" class="post-categories" style="text-decoration:none"> {{ tag }} </a> </li> {%- endfor -%} </ul> {%- endif -%} </div> <div class="post"> {%- if site.show_excerpts -%} {{ post.excerpt }} {%- endif -%} </div> </li> 
+	{%- endif -%}
+	{%- endfor -%}
 
 <br><br><br><hr style="height:2px;border-width:0;color:gray;background-color:gray">
 <h2> About this blog </h2>
