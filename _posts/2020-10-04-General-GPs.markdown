@@ -2,7 +2,7 @@
 layout: post
 title:  "Gaussian processes for regression"
 date:   2020-10-04 13:52:00 +0700
-categories: [Gaussian process, regression, Bayesian methods]
+categories: [Gaussian Process, Regression]
 published: true
 ---
 

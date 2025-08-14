@@ -9,8 +9,9 @@ sass:
   sass_dir: _sass
 tondo:
   navigation:
-   - title: Gaussian process
-     url: "/GaussianProcess"
+   - {title: Gaussian process, url: "/GaussianProcess"}
+   - {title: Physics-Informed, url: "/PhysicsInformed"}
+   - {title: Mechanical Models, url: "/MechanicalModel"}
   name: Gledson Tondo
   tagline: Structural Engineering<br>&<br>Machine Learning
   date_format: "%b %-d, %Y"

@@ -2,7 +2,7 @@
 layout: post
 title:  "Physics-informed Gaussian processes for Euler–Bernoulli beams"
 date:   2022-11-20 10:00:00 +0100
-categories: [Gaussian process, structural engineering, physics-informed, Bernoulli beam]
+categories: [Gaussian Process, Physics Informed, Mechanical Model]
 published: true
 ---
 

@@ -76,11 +76,11 @@
       {%- if site.tondo.navigation -%}
 	  <hr style="height:2px;width:100%;text-align:left;margin-left:0;color:gray;background-color:gray;border-width:0"> 
       <nav class="navigation about-footer {{condensed_class}}">
-        <ul>
+        <ul style="border-style: none">
 		  <li style=""> <a style="color:gray">Topics</a> </li>
           {% for link in site.tondo.navigation %}
-          <li>
-            <a href="{{ link.url }}">{{ link.title }}</a>
+          <li style="border-style: none">
+            <a style="border-style: none; height: 0.1em" href="{{ link.url }}">{{ link.title }}</a>
           </li>
           {% endfor %}
         </ul>
