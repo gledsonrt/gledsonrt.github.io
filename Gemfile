@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 gem "jekyll", "~> 3.10"
-gem "tondo"
+gem "tondo", path: "."
 gem "webrick", "~> 1.8"
 gem "base64"
 gem "bigdecimal"
