@@ -46,3 +46,5 @@ markdown: kramdown
 kramdown:
    math_engine: mathjax
    syntax_highlighter: rouge
+   
+excerpt_separator: <!--excerpt-->

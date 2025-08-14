@@ -10,6 +10,7 @@ Machine learning models can be pretty impressive — sometimes almost magical �
 
 This is where probabilistic machine learning comes in. Instead of giving just one answer, these models tell us a range of possible answers along with how likely each one is. One of the most powerful and elegant tools for this is the **Gaussian Process** (GPs).
 
+<!--excerpt-->
 ## What is a Gaussian process?
 
 Mathematically, according to [Wikipedia][wiki-gps]{:target="_blank"}, a Gaussian process is a *stochastic process where any collection of points has a joint multivariate normal distribution*. A fuller and much more practical explanation can be found in Rasmussen and Williams’ excellent [book][rasmussen-gp]{:target="_blank"}.  

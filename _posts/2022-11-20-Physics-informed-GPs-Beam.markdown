@@ -11,6 +11,7 @@ One of the best things about probabilistic machine learning is that it doesn’t
 
 Now, if you take a GP and combine it with the actual equations that describe your physical system, you get what’s called a **physics-informed Gaussian process**. In this post, you'll see how we can combined the *Euler–Bernoulli beam equation* with a multi-output GP to jointly work out deflections, rotations, strains, and internal forces in a beam — and even update uncertain material parameters — straight from observed data. This has been presented during the IABSE Symposium in Prague, CZ. A preprint of the paper is available at [arXiv][arxiv]{:target="_blank"}.
 
+<!--excerpt-->
 ## Modelling the Euler–Bernoulli beam with a multi-output GP
 
 The Euler–Bernoulli equation relates a beam’s bending stiffness $$EI$$ to its deflection $$u(x)$$ and applied load $$q(x)$$ via a fourth-order differential equation:
