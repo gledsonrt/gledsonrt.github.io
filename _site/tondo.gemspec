@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Gledson"]
   spec.email         = ["gledsonrt@gmail.com"]
 
-  spec.summary       = "A portfolio style jekyll theme modified from the original tondo"
+  spec.summary       = "A portfolio style jekyll theme modified from the original"
   spec.homepage      = "https://github.com/gledsonrt"
   spec.license       = "MIT"
 

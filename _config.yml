@@ -33,7 +33,7 @@ tondo:
     uni: https://www.uni-weimar.de/Bauing/MSK/
 
 # Build settings
-theme: tondo
+# theme: tondo
 
 plugins:
   - jekyll-feed
