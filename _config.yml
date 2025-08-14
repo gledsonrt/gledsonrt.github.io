@@ -36,8 +36,9 @@ tondo:
 theme: tondo
 
 plugins:
+  - jekyll-feed
+  - jekyll-sitemap
   - jekyll-seo-tag
-#  - jekyll-feed
 
 # Latex support
 markdown: kramdown
