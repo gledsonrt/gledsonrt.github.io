@@ -1,6 +1,18 @@
 [
   
     {
+      "title"    : "Physics-informed Gaussian processes for Euler–Bernoulli beams",
+      "title-lower"    : "physics-informed gaussian processes for euler–bernoulli beams",
+      "sub-titile" : "",
+      "sub-titile-lower" : "",
+      "categories" : "Gaussian processstructural engineeringphysics-informedBernoulli beam",
+      "tags"     : "",
+      "url"      : "/gaussian%20process/structural%20engineering/physics-informed/bernoulli%20beam/2022/11/20/Physics-informed-GPs-Beam.html",
+      "date"     : "2022-11-20 10:00:00 +0100",
+      "content"     : "One of the best things about probabilistic machine learning is that it doesn’t just give you an answer — it tells you how sure it is about that answer. Gaussian processes (GPs) are the go-to model ..."
+    } ,
+  
+    {
       "title"    : "Gaussian processes for regression",
       "title-lower"    : "gaussian processes for regression",
       "sub-titile" : "",

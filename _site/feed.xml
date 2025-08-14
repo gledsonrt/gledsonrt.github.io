@@ -1,5 +1,98 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-08-14T13:51:44+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">GT - Structural Engineering and Machine Learning</title><subtitle>This is a collection of scientific interests and results that I get during my research.
-</subtitle><author><name>Gledson Tondo</name></author><entry><title type="html">Gaussian processes for regression</title><link href="http://localhost:4000/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs.html" rel="alternate" type="text/html" title="Gaussian processes for regression" /><published>2020-10-04T08:52:00+02:00</published><updated>2020-10-04T08:52:00+02:00</updated><id>http://localhost:4000/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs</id><content type="html" xml:base="http://localhost:4000/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs.html"><![CDATA[<p>Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent <a href="https://www.forbes.com/sites/bernardmarr/2018/04/30/27-incredible-examples-of-ai-and-machine-learning-in-practice/#53826aa17502" target="_blank">examples</a>. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only <em>what</em> a model predicts, but <em>how confident</em> it is about those predictions.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-08-14T15:32:28+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">GT - Structural Engineering and Machine Learning</title><subtitle>This is a collection of scientific interests and results that I get during my research.
+</subtitle><author><name>Gledson Tondo</name></author><entry><title type="html">Physics-informed Gaussian processes for Euler–Bernoulli beams</title><link href="http://localhost:4000/gaussian%20process/structural%20engineering/physics-informed/bernoulli%20beam/2022/11/20/Physics-informed-GPs-Beam.html" rel="alternate" type="text/html" title="Physics-informed Gaussian processes for Euler–Bernoulli beams" /><published>2022-11-20T10:00:00+01:00</published><updated>2022-11-20T10:00:00+01:00</updated><id>http://localhost:4000/gaussian%20process/structural%20engineering/physics-informed/bernoulli%20beam/2022/11/20/Physics-informed-GPs-Beam</id><content type="html" xml:base="http://localhost:4000/gaussian%20process/structural%20engineering/physics-informed/bernoulli%20beam/2022/11/20/Physics-informed-GPs-Beam.html"><![CDATA[<p>One of the best things about probabilistic machine learning is that it doesn’t just give you an answer — it tells you how sure it is about that answer. <a href="/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs.html" target="_blank">Gaussian processes</a> (GPs) are the go-to model for this because they treat unknown functions as probability distributions, and they let us do some really handy things like conditioning on data, taking derivatives, and keeping all the maths neat and analytical.</p>
+
+<p>Now, if you take a GP and combine it with the actual equations that describe your physical system, you get what’s called a <strong>physics-informed Gaussian process</strong>. In this post, you’ll see how we can combined the <em>Euler–Bernoulli beam equation</em> with a multi-output GP to jointly work out deflections, rotations, strains, and internal forces in a beam — and even update uncertain material parameters — straight from observed data. This has been presented during the IABSE Symposium in Prague, CZ. A preprint of the paper is available at <a href="https://doi.org/10.48550/arXiv.2308.02894" target="_blank">arXiv</a>.</p>
+
+<h2 id="modelling-the-eulerbernoulli-beam-with-a-multi-output-gp">Modelling the Euler–Bernoulli beam with a multi-output GP</h2>
+
+<p>The Euler–Bernoulli equation relates a beam’s bending stiffness \(EI\) to its deflection \(u(x)\) and applied load \(q(x)\) via a fourth-order differential equation:</p>
+
+\[EI\,\frac{\mathrm{d}^4 u(x)}{\mathrm{d} x^4} = q(x),\]
+
+<p>where \(x \in [0,L]\) represents the longitudinal coordinate of a beam of length \(L\).</p>
+
+<p>A zero-mean GP prior is placed on the deflection:
+\(u(x) \sim \mathcal{GP}(0, k_{uu}(x,x')),\)
+with a squared exponential kernel
+\(k_{uu}(x,x') = \sigma_s^2 \exp\left(-\tfrac{1}{2}\frac{(x - x')^2}{\ell^2}\right),\)
+where \(\sigma_s\) is the vertical scale and \(\ell\) is the characteristic lengthscale.</p>
+
+<p>Because the beam equation is linear, derivatives of the GP are still GPs. Differentiating the kernel four times yields the covariance function for the load \(q(x)\), while fewer derivatives produce covariances for rotation, curvature, bending moment, and shear force.</p>
+
+<p>All outputs are collected into:
+\(f(x) = [u, \theta, \kappa, M, V, q]^{\mathsf{T}},\)
+with:</p>
+<ul>
+  <li>\(\theta = \mathrm{d}u/\mathrm{d}x\) (rotation),</li>
+  <li>\(\kappa = \mathrm{d}^2u/\mathrm{d}x^2\) (curvature),</li>
+  <li>\(M = EI\,\kappa\) (bending moment),</li>
+  <li>\(V = \mathrm{d}M/\mathrm{d}x\) (shear force).</li>
+</ul>
+
+<p>This formulation produces a <strong>multi-output GP</strong> with a block-structured covariance matrix derived from repeated differentiation of the base kernel. For instance, the load kernel is obtained as</p>
+
+\[k_{qq}(x,x') = \frac{1}{(EI)^2}\,\frac{\partial^4}{\partial x^4}\,\frac{\partial^4}{\partial x'^4}\,k_{uu}(x,x'),\]
+
+<p>and similar cross‑covariance functions between deflection, rotation, curvature, bending moment and shear force. Collecting these outputs into a vector \(f(x) = [u(x), \theta(x), \kappa(x), M(x), V(x), q(x)]^{\mathsf{T}}\), where \(\theta = \mathrm{d}u/\mathrm{d}x\) is the rotation, \(\kappa = \mathrm{d}^2u/\mathrm{d}x^2\) is the curvature, \(M = EI\,\kappa\) is the bending moment and \(V = \mathrm{d}M/\mathrm{d}x\) is the shear, leads to a <strong>multi‑output Gaussian process</strong> with zero mean and block‑structured covariance matrix</p>
+
+\[K_{pp} = \begin{pmatrix}
+K_{uu} &amp; K_{u\theta} &amp; \cdots &amp; K_{uq} \\
+K_{\theta u} &amp; K_{\theta\theta} &amp; \cdots &amp; K_{\theta q} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \cdots \\
+K_{qu} &amp; K_{q \theta} &amp; \cdots &amp; K_{qq}\\
+\end{pmatrix},\]
+
+<p>where each block is obtained by differentiating the base kernel appropriate numbers of times. Measurement noise is represented by adding diagonal blocks \(\Sigma_a^2 I\) to the covariance matrix, where \(\Sigma_a\) is the standard deviation of the noise, and boundary conditions at supports are enforced by including synthetic, noise‑free observations.</p>
+
+<h3 id="setting-the-parameter-priors">Setting the parameter priors</h3>
+
+<p>The model uses three sets of hyperparameters:</p>
+<ol>
+  <li>Kernel parameters \(\{\sigma_s, \ell\}\)</li>
+  <li>Bending stiffness \(EI\)</li>
+  <li>Measurement noise \(\sigma_a\)</li>
+</ol>
+
+<p>We give each of them independent priors — broad log-uniform for the kernel parameters, and uniform for \(EI\) between 10 % and 200 % of nominal. The posterior comes from combining the likelihood and priors, and I sample from it using a Metropolis–Hastings algorithm. Predictions are then averaged over these samples, so they naturally reflect parameter uncertainty.</p>
+
+<h2 id="numerical-example-cantilever-beam-under-uniform-load">Numerical example: cantilever beam under uniform load</h2>
+
+<p>The first test case involves a cantilever beam under a uniform load \(q\). The analytical deflection is
+\(u(x) = q\,\frac{x^2}{24\,EI}\left(x^2 - 4Lx + 6L^2\right),\)
+which we use as a benchmark.</p>
+
+<p style="font-size: 75%; text-align: center;"><img src="/assets/img/2022-11-20-Physics-informed-GPs-Beam_00.png" alt="Figure 1." class="center-image" />
+Benchmark cantilever beam used for validation of the GP model.</p>
+
+<p>We place four virtual deflection sensors along the beam and add Gaussian noise based on a chosen signal-to-noise ratio. Then I run the MH algorithm to get posteriors for the kernel parameters, noise, and stiffness. The predicted mean deflection matches the analytical curve really well, with uncertainty growing toward the free end where the constraints imposed to the model are weaker.</p>
+
+<p style="font-size: 75%; text-align: center;"><img src="/assets/img/2022-11-20-Physics-informed-GPs-Beam_01.png" alt="Figure 1." class="center-image" />
+Predicted deflection for the cantilever beam. Shaded area = 95 % credible interval.</p>
+
+<h3 id="predicting-of-unobserved-quantities">Predicting of unobserved quantities</h3>
+
+<p>Once trained, the GP gives me not just deflection, but also rotation, curvature (or strain), bending moment, and shear force — complete with credible intervals. These line up closely with the analytical solutions, with only small increases in uncertainty near boundaries.</p>
+
+<p style="font-size: 75%; text-align: center;"><img src="/assets/img/2022-11-20-Physics-informed-GPs-Beam_02.png" alt="Figure 2." class="center-image" />
+Predicted latent quantities — all obtained from the same GP model, even though it only trained using displacements.</p>
+
+<p>The bending stiffness estimate is also spot on, with less than 1 % bias and about 2 % relative uncertainty.</p>
+
+<p style="font-size: 75%; text-align: center;"><img src="/assets/img/2022-11-20-Physics-informed-GPs-Beam_04.png" alt="Figure 1." class="center-image" />
+Learned structural stiffness \(\psi_{EI}\) in comparison to the true numerical stiffness \(EI_{\mathrm{true}}\)</p>
+
+<h3 id="damage-detection-with-mahalanobis-distance">Damage detection with Mahalanobis distance</h3>
+
+<p>Here’s a neat trick: we simulate “damage” by reducing stiffness in one small section of the beam, then compare predicted vs. measured responses using the Mahalanobis distance \(d_M\). Large distances mean something’s off. With damage near the clamped end, the model flags it clearly; closer to the free end, it’s harder because uncertainty is higher and the effects of damage on the structural response are less pronounced.</p>
+
+<p style="font-size: 75%; text-align: center;"><img src="/assets/img/2022-11-20-Physics-informed-GPs-Beam_03.png" alt="Figure 3." class="center-image" />
+Damage detection — larger Mahalanobis distances identify damage location and severity.</p>
+
+<h2 id="takeaways">Takeaways</h2>
+
+<p>This physics-informed multi-output GP approach blends structural mechanics with Bayesian learning in a really natural way. By encoding the beam equation directly into the covariance, we get physically consistent predictions from sparse, noisy data, plus uncertainties on both states and parameters. It’s robust, can detect damage, and even spots dodgy sensors.</p>
+
+<p>The main drawback? Computational cost grows fast with the number of data points — so high-quality, well-placed sensors are key. But it should be interesting to see extensions of this method this to plates, dynamic problems, and non-stationary kernels in the future.</p>]]></content><author><name>Gledson Tondo</name></author><category term="Gaussian process" /><category term="structural engineering" /><category term="physics-informed" /><category term="Bernoulli beam" /><summary type="html"><![CDATA[One of the best things about probabilistic machine learning is that it doesn’t just give you an answer — it tells you how sure it is about that answer. Gaussian processes (GPs) are the go-to model for this because they treat unknown functions as probability distributions, and they let us do some really handy things like conditioning on data, taking derivatives, and keeping all the maths neat and analytical.]]></summary></entry><entry><title type="html">Gaussian processes for regression</title><link href="http://localhost:4000/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs.html" rel="alternate" type="text/html" title="Gaussian processes for regression" /><published>2020-10-04T08:52:00+02:00</published><updated>2020-10-04T08:52:00+02:00</updated><id>http://localhost:4000/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs</id><content type="html" xml:base="http://localhost:4000/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs.html"><![CDATA[<p>Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent <a href="https://www.forbes.com/sites/bernardmarr/2018/04/30/27-incredible-examples-of-ai-and-machine-learning-in-practice/#53826aa17502" target="_blank">examples</a>. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only <em>what</em> a model predicts, but <em>how confident</em> it is about those predictions.</p>
 
 <p>This is where probabilistic machine learning comes in. Instead of giving just one answer, these models tell us a range of possible answers along with how likely each one is. One of the most powerful and elegant tools for this is the <strong>Gaussian Process</strong> (GPs).</p>
 
