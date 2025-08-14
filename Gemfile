@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 gem "jekyll", "~> 3.10"
-gem "tondo", path: "."        # ok for local dev if this repo is the theme; or use the published gem name
+gem "tondo"
 gem "webrick", "~> 1.8"
 gem "base64"
 gem "bigdecimal"
