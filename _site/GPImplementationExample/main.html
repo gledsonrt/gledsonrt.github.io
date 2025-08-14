@@ -1,0 +1,108 @@
+<head>
+   <script src="https://cdn.plot.ly/plotly-1.2.0.min.js"></script>
+   <script src="gaussianprocess.js"></script>
+   <script src="math.js"></script>
+   <script src="Cobyla.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+   <script src="multivariate-normal.js"></script>
+</head>
+
+<body>
+<div id="myDiv" style="width:100%;height:500px;"></div>
+<input type="button" id="resetDataButton" value="Reset data" onclick="resetData()">
+
+<p><b>Gaussian Process Information</b></p>
+<table style="width:100%">
+	<tr>
+		<th style="text-align:left"><p>Kernel standard deviation:</p></th>
+		<th><input id="PosteriorSigmaVal" /></th>
+		<th><input type="range" id="PosteriorSigma" name="PosteriorSigma" min="0" max="1000" ></th>
+	</tr>
+	<tr>
+		<th style="text-align:left"><p>Kernel lengthscale:</p></th>
+		<th><input id="PosteriorLVal" /></th>
+		<th><input type="range" id="PosteriorLengthscale" name="PosteriorLengthscale" min="0" max="1000" ></th>
+	</tr>
+		<th style="text-align:left"><p>Dataset squared noise:</p></th>
+		<th><input id="PosteriorNoiseVal" /></th>
+		<th><input type="range" id="PosteriorNoise" name="PosteriorNoise" min="0" max="1000" ></th>
+	</tr>
+</table>
+
+<br><input type="button" id="optimizeValues" value="Optimize values" onclick="optVals()">
+
+
+<script>
+	var initSigma = 0.5;
+	var initLen = 1.0;
+	var initNoise = 1.0e-17;
+	function LogSlider(options) {
+	   options = options || {};
+	   this.minpos = options.minpos || 0;
+	   this.maxpos = options.maxpos || 100;
+	   this.minlval = Math.log(options.minval || 1);
+	   this.maxlval = Math.log(options.maxval || 100000);
+	   this.scale = (this.maxlval - this.minlval) / (this.maxpos - this.minpos);
+	}
+
+	LogSlider.prototype = {
+	   // Calculate value from a slider position
+	   value: function(position) {
+		  return Math.exp((position - this.minpos) * this.scale + this.minlval);
+	   },
+	   // Calculate slider position from a value
+	   position: function(value) {
+		  return this.minpos + (Math.log(value) - this.minlval) / this.scale;
+	   }
+	};
+
+	// PostSigma:
+	var logs = new LogSlider({maxpos: 1000, minval: 1.0e-3, maxval: 2});
+	$('#PosteriorSigma').on('change', function() {
+	   var val = logs.value(+$(this).val());
+	   $('#PosteriorSigmaVal').val(val.toFixed(15)); 
+	   try{updateVal()}catch{}
+	});
+	$('#PosteriorSigmaVal').on('keyup', function() {
+	   var pos = logs.position(+$(this).val());
+	   $('#PosteriorSigma').val(pos);
+	   try{updateVal()}catch{}
+	});
+	$('#PosteriorSigmaVal').val(initSigma).trigger("keyup");
+
+	// PostLen:
+	var logl = new LogSlider({maxpos: 1000, minval: 1.0e-3, maxval: 20});
+	$('#PosteriorLengthscale').on('change', function() {
+	   var val = logl.value(+$(this).val());
+	   $('#PosteriorLVal').val(val.toFixed(15));
+	   try{updateVal()}catch{}
+	});
+	$('#PosteriorLVal').on('keyup', function() {
+	   var pos = logl.position(+$(this).val());
+	   $('#PosteriorLengthscale').val(pos);
+	   try{updateVal()}catch{}
+	});
+	$('#PosteriorLVal').val(initLen).trigger("keyup");
+
+	// PostNoise:
+	var logn = new LogSlider({maxpos: 1000, minval: 1.0e-18, maxval: 1.0e-16});
+	$('#PosteriorNoise').on('change', function() {
+	   var val = logn.value(+$(this).val());
+	   $('#PosteriorNoiseVal').val(val.toFixed(20));
+	   try{updateVal()}catch{}
+	});
+	$('#PosteriorNoiseVal').on('keyup', function() {
+	   var pos = logn.position(+$(this).val());
+	   $('#PosteriorNoise').val(pos);
+	   try{updateVal()}catch{}
+	});
+	$('#PosteriorNoiseVal').val(initNoise).trigger("keyup");
+
+	buildPlot()
+	
+	document.getElementById("resetDataButton").onclick = function() {resetData(initSigma, initLen, initNoise)};
+	
+	document.getElementById("optimizeValues").onclick = function() {optVals()};
+</script>
+
+</body>

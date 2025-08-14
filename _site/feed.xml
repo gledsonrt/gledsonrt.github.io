@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-08-14T13:51:44+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">GT - Structural Engineering and Machine Learning</title><subtitle>This is a collection of scientific interests and results that I get during my research.
+</subtitle><author><name>Gledson Tondo</name></author><entry><title type="html">Gaussian processes for regression</title><link href="http://localhost:4000/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs.html" rel="alternate" type="text/html" title="Gaussian processes for regression" /><published>2020-10-04T08:52:00+02:00</published><updated>2020-10-04T08:52:00+02:00</updated><id>http://localhost:4000/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs</id><content type="html" xml:base="http://localhost:4000/gaussian%20process/regression/bayesian%20methods/2020/10/04/General-GPs.html"><![CDATA[<p>Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent <a href="https://www.forbes.com/sites/bernardmarr/2018/04/30/27-incredible-examples-of-ai-and-machine-learning-in-practice/#53826aa17502" target="_blank">examples</a>. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only <em>what</em> a model predicts, but <em>how confident</em> it is about those predictions.</p>
+
+<p>This is where probabilistic machine learning comes in. Instead of giving just one answer, these models tell us a range of possible answers along with how likely each one is. One of the most powerful and elegant tools for this is the <strong>Gaussian Process</strong> (GPs).</p>
+
+<h2 id="what-is-a-gaussian-process">What is a Gaussian process?</h2>
+
+<p>Mathematically, according to <a href="https://en.wikipedia.org/wiki/Gaussian_process" target="_blank">Wikipedia</a>, a Gaussian process is a <em>stochastic process where any collection of points has a joint multivariate normal distribution</em>. A fuller and much more practical explanation can be found in Rasmussen and Williams’ excellent <a href="http://www.gaussianprocess.org/gpml/" target="_blank">book</a>.</p>
+
+<p>In simple terms, a GP says: for every input \(x\), instead of a single, fixed output \(f(\mathbf{x})\), we have a <strong>distribution</strong> described by a mean function \(\mu(x)\) and a covariance function \(\text{cov}(x, x')\). The mean tells us the “average” prediction, and the covariance tells us how predictions for different inputs are related.</p>
+
+<p style="font-size: 75%; text-align: center;"><img src="/assets/img/2020-10-04-General-GPs_01.png" alt="Figure 01." class="center-image" />
+For example, if \(f(x) = x^2\) is a deterministic function, a stochastic version might keep the same mean \(\mu(x) = x^2\) but add uncertainty with \(\text{cov}(x, x') = 0.5^2 I\), where \(I\) is the identity matrix.</p>
+
+<h2 id="how-to-make-it-useful">How to make it useful</h2>
+
+<p>The main idea in machine learning is to design a model, feed it with data, and tweak it so that its predictions match reality as closely as possible. As George Box famously put it: <em>“All models are wrong, but some are useful.”</em></p>
+
+<p>With Gaussian Processes, the process starts with defining a <strong>prior</strong> — a set of assumptions about what the function might look like before seeing any data.</p>
+
+<h4 id="step-1-create-the-model">Step 1: Create the model</h4>
+
+<p>A GP is defined by a mean function and a covariance function (also called a <strong>kernel</strong>). In many cases, we set the mean to zero, \(\mu(x) = 0\), without losing generality, and focus on choosing the right kernel.</p>
+
+<p>One of the most popular and versatile kernels is the <strong>Squared Exponential (SE)</strong> kernel:</p>
+
+\[k(x, x') = \sigma_s^2 \exp\left( -\frac{1}{2} \frac{(x - x')^2}{\ell^2} \right),\]
+
+<p>with \(\sigma_s\) controlling the vertical scale (how much the function values can vary overall), and \(\ell\) being the lengthscale, which says how far you need to move in \(x\) before you expect a big change in \(y\).</p>
+
+<p>If the data have noise, we can add a noise term:</p>
+
+\[k(x, x') = \sigma_s^2 \exp\left( -\frac{1}{2} \frac{(x - x')^2}{\ell^2} \right) + \sigma_n^2 \delta(x, x'),\]
+
+<p>where \(\sigma_n\) is the noise level and \(\delta\) is the Kronecker delta. This basically adds a little uncertainty to the diagonal of the covariance matrix, making the predictions less rigid around the observed points.</p>
+
+<p>In this case, the kernel type and the parameters \(\sigma_s\), \(\ell\), and \(\sigma_n\) completely define your prior.</p>
+
+<h4 id="step-2-bring-in-the-data">Step 2: Bring in the data</h4>
+
+<p>Once we have a prior, the next step is to update it with observed data. This is where <strong>Bayes’ theorem</strong> comes in. It tells us how to combine what we believed <em>before</em> seeing the data (the prior) with what the data suggest (the likelihood) to get an updated belief (the posterior):</p>
+
+\[p(f(\mathbf{x}) \mid \mathcal{D}) = \frac{p(\mathcal{D} \mid f(\mathbf{x})) \, p(f(\mathbf{x}))}{p(\mathcal{D})}.\]
+
+<p>Here:</p>
+<ul>
+  <li>\(f (\mathbf{x})\) is the unknown function we’re modelling.</li>
+  <li>\(\mathcal{D} = \{ \mathbf{x}, \mathbf{y} \}\) is the training data (inputs and outputs).</li>
+  <li>\(p(f(\mathbf{x}))\) is the <strong>prior</strong> — what we believe about \(f\) before seeing any data.</li>
+  <li>\(p(\mathcal{D} \mid f(\mathbf{x}))\) is the <strong>likelihood</strong> — how probable it is to see our data if the true function were \(f (\mathbf{x})\).</li>
+  <li>\(p(f(\mathbf{x}) \mid \mathcal{D})\) is the <strong>posterior</strong> — the updated distribution over functions after seeing the data.</li>
+  <li>\(p(\mathcal{D})\) is the <strong>evidence</strong> or marginal likelihood — it normalises the posterior so probabilities sum to 1.</li>
+</ul>
+
+<p>For Gaussian Process regression, we usually assume the observations are noisy but Gaussian-distributed around the true function values. This means the likelihood is:</p>
+
+\[p(\mathbf{y} \mid f, \mathbf{x}) = \mathcal{N}\left( \mathbf{y} \,\middle|\, f(\mathbf{x}), \sigma_n^2 I \right).\]
+
+<p>When you combine a <strong>Gaussian prior</strong> with a <strong>Gaussian likelihood</strong>, something interesting happens: the posterior is also Gaussian, and the math works out in closed form. That’s one of the reasons GPs are so appealing — we get exact Bayesian inference without resorting to approximations.</p>
+
+<p>Learning in GPs relates to the process of finding the optimal values of the free model parameters (in this case, \(\sigma_s\), \(\ell\), and \(\sigma_n\)). This is usually done by maximisation of the Gaussian likelihood shown above.</p>
+
+<p>The result is a posterior distribution over functions that agrees with our prior where we have no data, and hugs the data points closely where we do have measurements, with uncertainty shrinking near observations and growing in between them.</p>
+
+<h4 id="step-3-see-it-in-action">Step 3: See it in action</h4>
+
+<p>The interactive example below shows how a GP works in practice. You can change the kernel parameters and see how the prior changes. Then, by clicking on the plot, you can add data points and watch how the model adapts.</p>
+
+<iframe style="width:100%;height:770px;" frameborder="0.05em" src="/gp.html" title="GP Implementation"></iframe>]]></content><author><name>Gledson Tondo</name></author><category term="Gaussian process" /><category term="regression" /><category term="Bayesian methods" /><summary type="html"><![CDATA[Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent examples. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only what a model predicts, but how confident it is about those predictions.]]></summary></entry></feed>
