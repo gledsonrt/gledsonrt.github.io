@@ -6,35 +6,80 @@ categories: [Gaussian process, regression, Bayesian methods]
 published: true
 ---
 
-The potential of machine learning models is sometimes mesmerizing, especially when we look at some cutting edge [applications][ml-examples]{:target="_blank"}. But "the world ain’t all sunshine and rainbows", sometimes things go a bit wrong, and all of the sudden your virtual AI assistant just spontaneously decides to [throw a party at 2am][alexa-party]{:target="_blank"}, or to team with with your kid and [buy some toys and cookies][alexa-kid]{:target="_blank"}. That's reason enough to not blindly trust whatever your ML algorith predicts, but instead to try to get a grasp on how certain we can be about it. One way of quantifying this uncertainty is through probabilistic ML models, and Gaussian Processes (GPs) are one of the best candidates for the task.
+Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent [examples][ml-examples]{:target="_blank"}. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only *what* a model predicts, but *how confident* it is about those predictions.  
+
+This is where probabilistic machine learning comes in. Instead of giving just one answer, these models tell us a range of possible answers along with how likely each one is. One of the most powerful and elegant tools for this is the **Gaussian Process** (GPs).
 
 ## What is a Gaussian process?
 
-What exactly is a Gaussian process? According to the [Wikipedia][wiki-gps]{:target="_blank"}, it's a "stochastic process in which every finite collection of random variables has a multivariate normal distribution", although a much, *much* better explanation of it is given the the amazing [book][rasmussen-gp]{:target="_blank"} by Rasmussen and Williams. In practice, it just means that we no longer have a deterministic system (when every $$x$$ point has a unique correspondent $$y$$ value) but rather a mean value $$\mu(x)$$ and an uncertainty range represented by a covariance function $$\text{cov}(x,x')$$. Just take a look at the figure below, should make things a bit clearer.
+Mathematically, according to [Wikipedia][wiki-gps]{:target="_blank"}, a Gaussian process is a *stochastic process where any collection of points has a joint multivariate normal distribution*. A fuller and much more practical explanation can be found in Rasmussen and Williams’ excellent [book][rasmussen-gp]{:target="_blank"}.  
+
+In simple terms, a GP says: for every input $$x$$, instead of a single, fixed output $$f(\mathbf{x})$$, we have a **distribution** described by a mean function $$\mu(x)$$ and a covariance function $$\text{cov}(x, x')$$. The mean tells us the “average” prediction, and the covariance tells us how predictions for different inputs are related.  
 
 ![Figure 01.](/assets/img/2020-10-04-General-GPs_01.png){: .center-image }
-If $$f(x)=x^2$$ is your deerministic function, then a stochastic version of it can be made with $$\mu(x)=x^2$$ and $$\text{cov}(x,x')= 0.5^2I$$, where $$I$$ is the identity matrix.
+For example, if $$f(x) = x^2$$ is a deterministic function, a stochastic version might keep the same mean $$\mu(x) = x^2$$ but add uncertainty with $$\text{cov}(x, x') = 0.5^2 I$$, where $$I$$ is the identity matrix.
 {: style="font-size: 75%; text-align: center;"}
 
 ## How to make it useful
 
-The whole point of machine learning is to create clever models and use available data to fine-tune them, so that their predictions are somewhat realistic. In the words of George Box: "All models are wrong, but some are useful". But how exactly can we do that with Gaussian Processes?
+The main idea in machine learning is to design a model, feed it with data, and tweak it so that its predictions match reality as closely as possible. As George Box famously put it: *“All models are wrong, but some are useful.”*  
 
-#### Create the model
+With Gaussian Processes, the process starts with defining a **prior** — a set of assumptions about what the function might look like before seeing any data.
 
-We need to parametrize the multivariate normal distribution we talked about earlier. Sounds more difficult than it actually is: we can assume, with no loss of generality, that the mean value is zero, $$\mu(x)=0$$, and the covariance matrix is given by some kernel. There are lots of kernels in store to choose from, and you can even build your own, as Duvenaud showed in his [thesis][duvenaud-thesis]{:target="_blank"}. In here we'll just focus on a simple and really useful one: the Squared Exponential Kernel,
+#### Step 1: Create the model
 
-$$k(x,x') = \sigma^2_s \text{exp} \left( -\frac{1}{2} \frac{(x-x')^2}{\ell^2} \right),$$
+A GP is defined by a mean function and a covariance function (also called a **kernel**). In many cases, we set the mean to zero, $$\mu(x) = 0$$, without losing generality, and focus on choosing the right kernel.  
 
-which is vastly used in research. You can see from the formula that the kernel value depends not only on $$x$$ and $$x'$$, which are part of your data, but also on $$\sigma_s$$, an amplitude control, and on $$\ell$$, a lengthscale that represents, on average, how much of a change in $$x$$ is necessary to have a significant change in $$y$$. In addition to those, if your data has noise, you might want to include to your SE kernel a standard Gaussian noise kernel: $$k(x,x')=\sigma_n^2\delta(x,x')$$, with $$\delta$$ being the Kronecker delta function. This should only increase a bit the values in the diagonal of your covariance matrix, and has the effect of relaxing the predictions around your datapoints.
+One of the most popular and versatile kernels is the **Squared Exponential (SE)** kernel:
 
-The choice of the kernel and the initial values for $$\sigma_s$$, $$\ell$$ and $$\sigma_n$$ defines your *prior* model: what you believe your predictions should look like, even before you have included any data in the model.
+$$
+k(x, x') = \sigma_s^2 \exp\left( -\frac{1}{2} \frac{(x - x')^2}{\ell^2} \right),
+$$
 
-#### Including data: the likelihood
+with $$\sigma_s$$ controlling the vertical scale (how much the function values can vary overall), and $$\ell$$ being the lengthscale, which says how far you need to move in $$x$$ before you expect a big change in $$y$$.  
 
-#### Hands-on testing
+If the data have noise, we can add a noise term:  
 
-The implementation below, although simple, is pretty useful to showcase how powerful this model is. You can change the parameters and see what's their influence on the prior. Then include data just by clicking at the plot, again, change the parameters or optimize the model by minimizing the marginal likelihood, and check the results!
+$$
+k(x, x') = \sigma_s^2 \exp\left( -\frac{1}{2} \frac{(x - x')^2}{\ell^2} \right) + \sigma_n^2 \delta(x, x'),
+$$
+
+where $$\sigma_n$$ is the noise level and $$\delta$$ is the Kronecker delta. This basically adds a little uncertainty to the diagonal of the covariance matrix, making the predictions less rigid around the observed points.
+
+In this case, the kernel type and the parameters $$\sigma_s$$, $$\ell$$, and $$\sigma_n$$ completely define your prior.
+
+#### Step 2: Bring in the data
+
+Once we have a prior, the next step is to update it with observed data. This is where **Bayes’ theorem** comes in. It tells us how to combine what we believed *before* seeing the data (the prior) with what the data suggest (the likelihood) to get an updated belief (the posterior):
+
+$$
+p(f(\mathbf{x}) \mid \mathcal{D}) = \frac{p(\mathcal{D} \mid f(\mathbf{x})) \, p(f(\mathbf{x}))}{p(\mathcal{D})}.
+$$
+
+Here:  
+- $$f (\mathbf{x})$$ is the unknown function we’re modelling.  
+- $$ \mathcal{D} = \{ \mathbf{x}, \mathbf{y} \} $$ is the training data (inputs and outputs).  
+- $$ p(f(\mathbf{x})) $$ is the **prior** — what we believe about $$ f $$ before seeing any data.  
+- $$ p(\mathcal{D} \mid f(\mathbf{x})) $$ is the **likelihood** — how probable it is to see our data if the true function were $$ f (\mathbf{x}) $$.  
+- $$ p(f(\mathbf{x}) \mid \mathcal{D}) $$ is the **posterior** — the updated distribution over functions after seeing the data.  
+- $$ p(\mathcal{D}) $$ is the **evidence** or marginal likelihood — it normalises the posterior so probabilities sum to 1.
+
+For Gaussian Process regression, we usually assume the observations are noisy but Gaussian-distributed around the true function values. This means the likelihood is:
+
+$$
+p(\mathbf{y} \mid f, \mathbf{x}) = \mathcal{N}\left( \mathbf{y} \,\middle|\, f(\mathbf{x}), \sigma_n^2 I \right).
+$$
+
+When you combine a **Gaussian prior** with a **Gaussian likelihood**, something interesting happens: the posterior is also Gaussian, and the math works out in closed form. That’s one of the reasons GPs are so appealing — we get exact Bayesian inference without resorting to approximations.
+
+Learning in GPs relates to the process of finding the optimal values of the free model parameters (in this case, $$\sigma_s$$, $$\ell$$, and $$\sigma_n$$). This is usually done by maximisation of the Gaussian likelihood shown above.
+
+The result is a posterior distribution over functions that agrees with our prior where we have no data, and hugs the data points closely where we do have measurements, with uncertainty shrinking near observations and growing in between them.
+
+
+#### Step 3: See it in action
+
+The interactive example below shows how a GP works in practice. You can change the kernel parameters and see how the prior changes. Then, by clicking on the plot, you can add data points and watch how the model adapts.
 
 <iframe style="width:100%;height:770px;" frameBorder="0.05em" src="/gp.html" title="GP Implementation"></iframe>
 

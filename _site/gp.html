@@ -14,15 +14,16 @@
 		padding: 5px 10px;
 		border: 0px solid #dfe2e5;
 	  }
-	  th {
+	  .th {
 		font-family: "Merriweather", sans-serif;
 		font-weight: 300;
 		font-size: 14px;
 		color: #222;
-		line-height: 1.0em;
+		line-height: 0.2em;
 	  }
 	}
    </style>
+   <link rel="stylesheet" href="/assets/css/style.css">
 
 </head>
 
@@ -32,27 +33,27 @@
 
 <input type="button" id="resetDataButton" value="Reset data" onclick="resetData()" style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;">
 
-<p style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;">Gaussian Process Information</p>
+<p style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;">Gaussian Process parameters</p>
 
 <table>
 	<tr style="padding: 5px 10px;border: 0px solid #dfe2e5;">
-		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;"><p>Kernel standard deviation:</p></th>
+		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;"><p>Kernel standard deviation:</p></th>
 		<th><input id="PosteriorSigmaVal" /></th>
 		<th><input type="range" id="PosteriorSigma" name="PosteriorSigma" min="0" max="1000" ></th>
 	</tr>
 	<tr style="padding: 5px 10px;border: 0px solid #dfe2e5;">
-		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;"><p>Kernel lengthscale:</p></th>
+		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;"><p>Kernel lengthscale:</p></th>
 		<th><input id="PosteriorLVal" /></th>
 		<th><input type="range" id="PosteriorLengthscale" name="PosteriorLengthscale" min="0" max="1000" ></th>
 	</tr>
 	<tr style="padding: 5px 10px;border: 0px solid #dfe2e5;">
-		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;"><p>Dataset squared noise:</p></th>
+		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;"><p>Dataset squared noise:</p></th>
 		<th><input id="PosteriorNoiseVal" /></th>
 		<th><input type="range" id="PosteriorNoise" name="PosteriorNoise" min="0" max="1000" ></th>
 	</tr>
 </table>
 
-<br><input type="button" id="optimizeValues" value="Optimize values" onclick="optVals()" style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;">
+<br><!--input type="button" id="optimizeValues" value="Optimize values" onclick="optVals()" style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;"-->
 
 
 <script>
