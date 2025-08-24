@@ -3,7 +3,7 @@ layout: post
 title:  "Can your iPhone LiDAR measure vibrations? A friendly dive into modal analysis"
 date:   2023-09-12 10:00:00 +0100
 categories: [LiDAR, Modal Analysis, Structural Health Monitoring]
-published: true
+published: false
 ---
 
 If you’ve ever wondered what that little black circle on the back of your iPhone does besides taking cool portrait shots, you’re not alone.  The latest iPhone Pro models come with a tiny LiDAR sensor that measures depth by timing how long it takes light to bounce back.  It’s meant for augmented reality, but could it also double as a vibration sensor?  That’s exactly what a recent paper by Gledson Tondo, Charles Riley and Guido Morgenthal set out to explore:contentReference[oaicite:0]{index=0}.
