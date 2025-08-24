@@ -9,21 +9,21 @@
 <script src="https://kit.fontawesome.com/954e9951b7.js" crossorigin="anonymous"></script>
 <title>Gaussian Process</title>
 <!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>Gaussian Process | GT - Structural Engineering and Machine Learning</title>
+<title>Gaussian Process | Gledson Tondo</title>
 <meta name="generator" content="Jekyll v3.10.0" />
 <meta property="og:title" content="Gaussian Process" />
 <meta name="author" content="Gledson Tondo" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="This is a collection of scientific interests and results that I get during my research." />
-<meta property="og:description" content="This is a collection of scientific interests and results that I get during my research." />
+<meta name="description" content="Physics-informed machine learning for structural engineering, bridge dynamics, and health monitoring — blending data science with engineering expertise." />
+<meta property="og:description" content="Physics-informed machine learning for structural engineering, bridge dynamics, and health monitoring — blending data science with engineering expertise." />
 <link rel="canonical" href="http://localhost:4000/GaussianProcess/" />
 <meta property="og:url" content="http://localhost:4000/GaussianProcess/" />
-<meta property="og:site_name" content="GT - Structural Engineering and Machine Learning" />
+<meta property="og:site_name" content="Gledson Tondo" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Gaussian Process" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"Gledson Tondo"},"description":"This is a collection of scientific interests and results that I get during my research.","headline":"Gaussian Process","url":"http://localhost:4000/GaussianProcess/"}</script>
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"Gledson Tondo"},"description":"Physics-informed machine learning for structural engineering, bridge dynamics, and health monitoring — blending data science with engineering expertise.","headline":"Gaussian Process","url":"http://localhost:4000/GaussianProcess/"}</script>
 <!-- End Jekyll SEO tag -->
 
 
@@ -119,7 +119,11 @@
 		</div>
 		<hr style="height:2px;border-width:0;color:gray;background-color:gray"><li><a class="post-link" href="/gaussian%20process/physics%20informed/mechanical%20model/2022/11/20/Physics-informed-GPs-Beam.html"> <h2 class="post-title">Physics-informed Gaussian processes for Euler–Bernoulli beams</h2> </a> <div class="post-meta"> <div class="post-date"> <i class="icon-calendar"></i> Nov 20, 2022 </div><ul class="post-categories"><li> <a href="GaussianProcess" class="post-categories" style="text-decoration:none"> Gaussian Process </a> </li><li> <a href="PhysicsInformed" class="post-categories" style="text-decoration:none"> Physics Informed </a> </li><li> <a href="MechanicalModel" class="post-categories" style="text-decoration:none"> Mechanical Model </a> </li></ul></div> <div class="post"><p>One of the best things about probabilistic machine learning is that it doesn’t just give you an answer — it tells you how sure it is about that answer. <a href="/gaussian%20process/regression/2020/10/04/General-GPs.html" target="_blank">Gaussian processes</a> (GPs) are the go-to model for this because they treat unknown functions as probability distributions, and they let us do some really handy things like conditioning on data, taking derivatives, and keeping all the maths neat and analytical.</p>
 
+<p>Now, if you take a GP and combine it with the actual equations that describe your physical system, you get what’s called a <strong>physics-informed Gaussian process</strong>. In this post, you’ll see how we can combined the <em>Euler–Bernoulli beam equation</em> with a multi-output GP to jointly work out deflections, rotations, strains, and internal forces in a beam — and even update uncertain material parameters — straight from observed data. This has been presented during the IABSE Symposium in Prague, CZ. A preprint of the paper is available at <a href="https://doi.org/10.48550/arXiv.2308.02894" target="_blank">arXiv</a>.</p>
+
 </div> </li><li><a class="post-link" href="/gaussian%20process/regression/2020/10/04/General-GPs.html"> <h2 class="post-title">Gaussian processes for regression</h2> </a> <div class="post-meta"> <div class="post-date"> <i class="icon-calendar"></i> Oct 4, 2020 </div><ul class="post-categories"><li> <a href="GaussianProcess" class="post-categories" style="text-decoration:none"> Gaussian Process </a> </li><li> <a href="Regression" class="post-categories" style="text-decoration:none"> Regression </a> </li></ul></div> <div class="post"><p>Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent <a href="https://www.forbes.com/sites/bernardmarr/2018/04/30/27-incredible-examples-of-ai-and-machine-learning-in-practice/#53826aa17502" target="_blank">examples</a>. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only <em>what</em> a model predicts, but <em>how confident</em> it is about those predictions.</p>
+
+<p>This is where probabilistic machine learning comes in. Instead of giving just one answer, these models tell us a range of possible answers along with how likely each one is. One of the most powerful and elegant tools for this is the <strong>Gaussian Process</strong> (GPs).</p>
 
 </div> </li><br><br><br><hr style="height:2px;border-width:0;color:gray;background-color:gray">
 <h2> About this blog </h2>

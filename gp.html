@@ -1,135 +1,26 @@
----
-title: None
----
-<!DOCTYPE html>
-<head>
-	
-	
-   <script src="https://cdn.plot.ly/plotly-1.2.0.min.js"></script>
-   <script src="/assets/js/gaussianprocess.js"></script>
-   <script src="/assets/js/math.js"></script>
-   <script src="/assets/js/Cobyla.js"></script>
-   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-   
-   <style>
-	  .table {
-	  th, td {
-		padding: 5px 10px;
-		border: 0px solid #dfe2e5;
-	  }
-	  .th {
-		font-family: "Merriweather", sans-serif;
-		font-weight: 300;
-		font-size: 14px;
-		color: #222;
-		line-height: 0.2em;
-	  }
-	}
-   </style>
-   <link rel="stylesheet" href="/assets/css/style.css">
-
-</head>
-
-<body style="background-color: #ffffff;">
-<div id="myDiv" style="width:100%;height:480px;"></div>
-
-
-<input type="button" id="resetDataButton" value="Reset data" onclick="resetData()" style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;">
-
-<p style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;">Gaussian Process parameters</p>
-
-<table>
-	<tr style="padding: 5px 10px;border: 0px solid #dfe2e5;">
-		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;"><p>Kernel standard deviation:</p></th>
-		<th><input id="PosteriorSigmaVal" /></th>
-		<th><input type="range" id="PosteriorSigma" name="PosteriorSigma" min="0" max="1000" ></th>
-	</tr>
-	<tr style="padding: 5px 10px;border: 0px solid #dfe2e5;">
-		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;"><p>Kernel lengthscale:</p></th>
-		<th><input id="PosteriorLVal" /></th>
-		<th><input type="range" id="PosteriorLengthscale" name="PosteriorLengthscale" min="0" max="1000" ></th>
-	</tr>
-	<tr style="padding: 5px 10px;border: 0px solid #dfe2e5;">
-		<th style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;"><p>Dataset squared noise:</p></th>
-		<th><input id="PosteriorNoiseVal" /></th>
-		<th><input type="range" id="PosteriorNoise" name="PosteriorNoise" min="0" max="1000" ></th>
-	</tr>
-</table>
-
-<br><!--input type="button" id="optimizeValues" value="Optimize values" onclick="optVals()" style="text-align:left;font-family:'Merriweather',sans-serif;font-weight: 300;font-size: 14px;color: #222;line-height: 1.0em;"-->
-
-
-<script>
-	var initSigma = 0.5;
-	var initLen = 1.0;
-	var initNoise = 1.0e-3;
-	function LogSlider(options) {
-	   options = options || {};
-	   this.minpos = options.minpos || 0;
-	   this.maxpos = options.maxpos || 100;
-	   this.minlval = Math.log(options.minval || 1);
-	   this.maxlval = Math.log(options.maxval || 100000);
-	   this.scale = (this.maxlval - this.minlval) / (this.maxpos - this.minpos);
-	}
-
-	LogSlider.prototype = {
-	   // Calculate value from a slider position
-	   value: function(position) {
-		  return Math.exp((position - this.minpos) * this.scale + this.minlval);
-	   },
-	   // Calculate slider position from a value
-	   position: function(value) {
-		  return this.minpos + (Math.log(value) - this.minlval) / this.scale;
-	   }
-	};
-
-	// PostSigma:
-	var logs = new LogSlider({maxpos: 1000, minval: 1.0e-3, maxval: 2});
-	$('#PosteriorSigma').on('change', function() {
-	   var val = logs.value(+$(this).val());
-	   $('#PosteriorSigmaVal').val(val.toFixed(15)); 
-	   try{updateVal()}catch{}
-	});
-	$('#PosteriorSigmaVal').on('keyup', function() {
-	   var pos = logs.position(+$(this).val());
-	   $('#PosteriorSigma').val(pos);
-	   try{updateVal()}catch{}
-	});
-	$('#PosteriorSigmaVal').val(initSigma).trigger("keyup");
-
-	// PostLen:
-	var logl = new LogSlider({maxpos: 1000, minval: 1.0e-3, maxval: 20});
-	$('#PosteriorLengthscale').on('change', function() {
-	   var val = logl.value(+$(this).val());
-	   $('#PosteriorLVal').val(val.toFixed(15));
-	   try{updateVal()}catch{}
-	});
-	$('#PosteriorLVal').on('keyup', function() {
-	   var pos = logl.position(+$(this).val());
-	   $('#PosteriorLengthscale').val(pos);
-	   try{updateVal()}catch{}
-	});
-	$('#PosteriorLVal').val(initLen).trigger("keyup");
-
-	// PostNoise:
-	var logn = new LogSlider({maxpos: 1000, minval: 1.0e-10, maxval: 10});
-	$('#PosteriorNoise').on('change', function() {
-	   var val = logn.value(+$(this).val());
-	   $('#PosteriorNoiseVal').val(val.toFixed(15));
-	   try{updateVal()}catch{}
-	});
-	$('#PosteriorNoiseVal').on('keyup', function() {
-	   var pos = logn.position(+$(this).val());
-	   $('#PosteriorNoise').val(pos);
-	   try{updateVal()}catch{}
-	});
-	$('#PosteriorNoiseVal').val(initNoise).trigger("keyup");
-
-	buildPlot()
-	
-	document.getElementById("resetDataButton").onclick = function() {resetData(initSigma, initLen, initNoise)};
-	
-	document.getElementById("optimizeValues").onclick = function() {optVals()};
-</script>
-
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/GPImplementationExample/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GP Demo</title>
+	<style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <script type="module" crossorigin src="/GPImplementationExample/assets/index-yblhifVL.js"></script>
+    <link rel="stylesheet" crossorigin href="/GPImplementationExample/assets/index-Cfn8Bouk.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

@@ -1,5 +1,172 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-08-14T16:41:43+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">GT - Structural Engineering and Machine Learning</title><subtitle>This is a collection of scientific interests and results that I get during my research.
-</subtitle><author><name>Gledson Tondo</name></author><entry><title type="html">Physics-informed Gaussian processes for Euler–Bernoulli beams</title><link href="http://localhost:4000/gaussian%20process/physics%20informed/mechanical%20model/2022/11/20/Physics-informed-GPs-Beam.html" rel="alternate" type="text/html" title="Physics-informed Gaussian processes for Euler–Bernoulli beams" /><published>2022-11-20T10:00:00+01:00</published><updated>2022-11-20T10:00:00+01:00</updated><id>http://localhost:4000/gaussian%20process/physics%20informed/mechanical%20model/2022/11/20/Physics-informed-GPs-Beam</id><content type="html" xml:base="http://localhost:4000/gaussian%20process/physics%20informed/mechanical%20model/2022/11/20/Physics-informed-GPs-Beam.html"><![CDATA[<p>One of the best things about probabilistic machine learning is that it doesn’t just give you an answer — it tells you how sure it is about that answer. <a href="/gaussian%20process/regression/2020/10/04/General-GPs.html" target="_blank">Gaussian processes</a> (GPs) are the go-to model for this because they treat unknown functions as probability distributions, and they let us do some really handy things like conditioning on data, taking derivatives, and keeping all the maths neat and analytical.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-08-24T13:57:53+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Gledson Tondo</title><subtitle>Physics-informed machine learning for structural engineering, bridge dynamics, and health monitoring — blending data science with engineering expertise. 
+</subtitle><author><name>Gledson Tondo</name></author><entry><title type="html">Can your iPhone LiDAR measure vibrations? A friendly dive into modal analysis</title><link href="http://localhost:4000/lidar/modal%20analysis/structural%20health%20monitoring/2023/09/12/LiDAR-Vibration.html" rel="alternate" type="text/html" title="Can your iPhone LiDAR measure vibrations? A friendly dive into modal analysis" /><published>2023-09-12T11:00:00+02:00</published><updated>2023-09-12T11:00:00+02:00</updated><id>http://localhost:4000/lidar/modal%20analysis/structural%20health%20monitoring/2023/09/12/LiDAR-Vibration</id><content type="html" xml:base="http://localhost:4000/lidar/modal%20analysis/structural%20health%20monitoring/2023/09/12/LiDAR-Vibration.html"><![CDATA[<p>If you’ve ever wondered what that little black circle on the back of your iPhone does besides taking cool portrait shots, you’re not alone.  The latest iPhone Pro models come with a tiny LiDAR sensor that measures depth by timing how long it takes light to bounce back.  It’s meant for augmented reality, but could it also double as a vibration sensor?  That’s exactly what a recent paper by Gledson Tondo, Charles Riley and Guido Morgenthal set out to explore:contentReference[oaicite:0]{index=0}.</p>
+
+<p>Instead of taking these devices at face value, the authors put the iPhone 13 Pro’s LiDAR through its paces.  They looked at how far away it needs to be, how much noise it makes and how to squeeze proper modal parameters out of it.  Along the way they used a laser displacement transducer (LDT) as a gold‑standard reference and even tried a full modal test on a tall cantilever beam.  This post follows their journey and keeps things relaxed and conversational.</p>
+
+<!--excerpt-->
+<h2 id="whats-hiding-inside-your-iphones-camera-bump">What’s hiding inside your iPhone’s camera bump?</h2>
+
+<p>First things first: what exactly is this LiDAR gadget?  Inside the camera cluster sits a teeny vertical‑cavity surface‑emitting laser (VCSEL) array and a companion single‑photon avalanche diode (SPAD) detector:contentReference[oaicite:1]{index=1}.  It fires out nine points of light in a 3×3 grid, sweeps them across roughly a 60°×48° field of view and collects 576 raw depth samples.  Apple doesn’t let you touch those directly, though.  Their ARKit framework fuses the raw depths with RGB data from the wide‑angle lens to give you a 256 × 192 depth map at 60 Hz:contentReference[oaicite:2]{index=2}.</p>
+
+<!-- Placeholder for camera cluster image -->
+<p><img src="path/to/lidar_camera_placeholder.png" alt="iPhone camera cluster showing LiDAR placement" class="center-image" /></p>
+
+<p>This fusion is great for making augmented reality scenes look crisp, but it also means the real sampling rate and noise characteristics aren’t obvious.  Knowing how often the depth values are actually updated and how much post‑processing goes on behind the scenes is the key to using the sensor for engineering measurements.</p>
+
+<h2 id="checking-the-sensor-in-still-mode">Checking the sensor in still mode</h2>
+
+<h3 id="how-they-set-it-up">How they set it up</h3>
+
+<p>To see how the LiDAR behaves when nothing is moving, the team pointed the phone at a black rectangular plate mounted on a stand:contentReference[oaicite:3]{index=3}.  They collected 300 depth maps at different separations and checked the average and standard deviation of the central pixel.  Not everything in the frame was equally reliable – the top border, where the plate ran out and the background peeked through, was noticeably noisier:contentReference[oaicite:4]{index=4}.</p>
+
+<!-- Placeholder for static setup photo -->
+<p><img src="path/to/static_setup_placeholder.png" alt="Static measurement setup" class="center-image" /></p>
+
+<h3 id="finding-the-sweet-spot">Finding the sweet spot</h3>
+
+<p>How close is too close?  They found that standing about 30 cm away was the sweet spot: the measurements were basically unbiased and the standard deviation was only about 0.05 cm, which works out to an SNR of roughly 55 dB:contentReference[oaicite:5]{index=5}.  Move back to around 40 cm and the noise level stays low, but shove the phone right up against the plate and both bias and noise blow up.  Table 1 summarises the numbers they reported.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: right">Distance [cm]</th>
+      <th style="text-align: right">Mean depth [cm]</th>
+      <th style="text-align: right">Standard deviation [cm]</th>
+      <th style="text-align: right">SNR [dB]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: right">12</td>
+      <td style="text-align: right">15.4</td>
+      <td style="text-align: right">0.65</td>
+      <td style="text-align: right">27.6</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">20</td>
+      <td style="text-align: right">22.6</td>
+      <td style="text-align: right">0.10</td>
+      <td style="text-align: right">46.7</td>
+    </tr>
+    <tr>
+      <td style="text-align: right"><strong>30</strong></td>
+      <td style="text-align: right"><strong>29.9</strong></td>
+      <td style="text-align: right"><strong>0.05</strong></td>
+      <td style="text-align: right"><strong>55.5</strong></td>
+    </tr>
+    <tr>
+      <td style="text-align: right">40</td>
+      <td style="text-align: right">39.7</td>
+      <td style="text-align: right">0.03</td>
+      <td style="text-align: right">63.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">100</td>
+      <td style="text-align: right">100.1</td>
+      <td style="text-align: right">0.09</td>
+      <td style="text-align: right">61.4</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Lighting also made a surprising difference.  With normal room lighting the depth map looked crisp and the variance stayed low.  Switch the lights off and everything got murky – probably because Apple’s depth‑RGB fusion works better when the camera sees something:contentReference[oaicite:6]{index=6}.</p>
+
+<h2 id="shaking-things-up">Shaking things up</h2>
+
+<h3 id="so-how-does-it-handle-vibrations">So, how does it handle vibrations?</h3>
+
+<p>Next they clamped the same plate to a fancy air‑bearing shaker that can wiggle back and forth at controlled frequencies.  A laser displacement transducer recorded a ground‑truth signal while the LiDAR watched from 35 cm away:contentReference[oaicite:7]{index=7}.</p>
+
+<!-- Placeholder for dynamic setup photo -->
+<p><img src="path/to/dynamic_setup_placeholder.png" alt="Dynamic measurement setup" class="center-image" /></p>
+
+<p>Running a sweep of pure harmonic oscillations, they compared the root‑mean‑square (RMS) displacement measured by both sensors.  Up to roughly 10 Hz the curves matched nicely:contentReference[oaicite:8]{index=8}.  Above that, the LiDAR started to exaggerate the motion because of aliasing and extra noise.  When they fed the shaker a broadband signal (1–60 Hz), the LiDAR did a decent job capturing the overall power spectral density but showed a bump at very low frequencies (~1 Hz) and a dip around 15 Hz:contentReference[oaicite:9]{index=9}.</p>
+
+<p>The noise floor at the centre pixel came out at about 5.3 mm/(\sqrt{\text{Hz}}) at 1 Hz and dropped off as frequency increased:contentReference[oaicite:10]{index=10}.  That’s a lot higher than what you’d expect from a dedicated displacement sensor, so you either need big vibrations or a good filter.</p>
+
+<h3 id="how-far-can-you-stand-back">How far can you stand back?</h3>
+
+<p>They repeated the harmonic test at different distances to see how far you could be and still get meaningful data.  Everything stayed within about 2 % error up to 1.5 m.  Push it to 2 m and the error climbs to around 11 %, and at 3 m the depth map can’t reliably see the plate any more:contentReference[oaicite:11]{index=11}.</p>
+
+<h3 id="a-surprise-about-sampling-rate">A surprise about sampling rate</h3>
+
+<p>Here’s the quirky part: even though ARKit spits out depth maps at 60 Hz to match the RGB camera, the LiDAR hardware only samples at 15 Hz.  Apple fills in the gaps by upsampling, which mirrors the spectrum around the Nyquist frequency of 7.5 Hz:contentReference[oaicite:12]{index=12}.  That means anything above 7.5 Hz folds back into the lower range.  For example, a 12.5 Hz signal masquerades as 2.5 Hz, and 25 Hz folds to 5 Hz.  You can still track these higher frequencies if you know what you’re looking for, but you’ll need to account for the alias:contentReference[oaicite:13]{index=13}.</p>
+
+<h2 id="giving-the-lidar-a-real-job-modal-testing">Giving the LiDAR a real job: modal testing</h2>
+
+<h3 id="setting-up-a-cantilever-beam">Setting up a cantilever beam</h3>
+
+<p>To put the LiDAR to a more practical test, the authors mounted a 1.5 m tall steel cantilever (with a 16 mm × 2 mm cross‑section) on the shaker:contentReference[oaicite:14]{index=14}.  They placed the phone at the mid‑height of the beam, 1.5 m away, and let the shaker apply a random base excitation.  A laser measured base motion while the LiDAR captured the whole beam’s displacement field:contentReference[oaicite:15]{index=15}.</p>
+
+<!-- Placeholder for modal test setup photo -->
+<p><img src="path/to/modal_setup_placeholder.png" alt="Cantilever modal test setup" class="center-image" /></p>
+
+<h3 id="processing-the-data">Processing the data</h3>
+
+<p>Because the beam’s displacement lives along a line, they pulled out one column of depth pixels and clipped off the top where the beam sometimes left the field of view.  They also down‑sampled to 15 Hz to avoid aliasing.  Then they ran a covariance‑driven stochastic subspace identification (SSI) algorithm 1000 times, each time picking five heights at random using Latin hypercube sampling.  This Monte‑Carlo approach gave them distributions for the natural frequencies, damping ratios and mode shapes.</p>
+
+<p>The first two natural frequencies identified from the LiDAR matched those from the laser transducer to within about 2 %:contentReference[oaicite:16]{index=16}.  Frequencies above the Nyquist limit showed up as aliases.  Damping ratios from the LiDAR tended to be higher because the noise acts like extra damping:contentReference[oaicite:17]{index=17}.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: right">Mode</th>
+      <th style="text-align: right">True freq [Hz] (LDT)</th>
+      <th style="text-align: right">Alias [Hz] in LiDAR</th>
+      <th style="text-align: right">Mean LiDAR freq [Hz]</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: right">1</td>
+      <td style="text-align: right">0.51</td>
+      <td style="text-align: right">–</td>
+      <td style="text-align: right">0.50</td>
+      <td>Matches true value</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">2</td>
+      <td style="text-align: right">4.31</td>
+      <td style="text-align: right">–</td>
+      <td style="text-align: right">4.45</td>
+      <td>Slightly higher</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">3</td>
+      <td style="text-align: right">12.48</td>
+      <td style="text-align: right">2.52</td>
+      <td style="text-align: right">2.55</td>
+      <td>Alias due to 15 Hz sampling</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">4</td>
+      <td style="text-align: right">24.57</td>
+      <td style="text-align: right">5.43</td>
+      <td style="text-align: right">5.48</td>
+      <td>Alias due to 15 Hz sampling</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>By fitting a Gaussian process to the SSI‑derived mode shapes, they smoothed out the noisy results and obtained a mean shape with confidence bounds.  Comparing these to an analytical cantilever model showed excellent agreement for the first two modes (MAC &gt; 0.9):contentReference[oaicite:18]{index=18}.  The higher modes had lower MAC values and larger uncertainties because of aliasing and noise.:contentReference[oaicite:19]{index=19}</p>
+
+<h2 id="what-we-learned">What we learned</h2>
+
+<p>If you’re thinking about using your iPhone’s LiDAR as a vibration sensor, here are the big takeaways:</p>
+
+<ul>
+  <li><strong>Stay at a sensible distance:</strong> keep the phone around 30 cm from what you’re measuring for static readings.  Too close and the readings get biased; too far and the noise climbs:contentReference[oaicite:20]{index=20}.</li>
+  <li><strong>Light helps:</strong> the depth‑RGB fusion does better when the camera sees something.  Turn the lights off and expect more noise:contentReference[oaicite:21]{index=21}.</li>
+  <li><strong>Low‑frequency champion:</strong> the LiDAR captures displacements faithfully up to about 10 Hz and distances up to 2 m:contentReference[oaicite:22]{index=22}.  Above 7.5 Hz you’ll run into aliasing because the true sampling rate is only 15 Hz:contentReference[oaicite:23]{index=23}.</li>
+  <li><strong>Good for first modes:</strong> for simple structures like cantilevers, you can extract the first two modal frequencies and shapes quite accurately.  Higher modes show up as aliases, and damping estimates are inflated due to noise:contentReference[oaicite:24]{index=24}.</li>
+</ul>
+
+<p>Overall, the iPhone’s LiDAR is a fun and surprisingly capable tool for low‑frequency, low‑amplitude vibration studies – especially when you need a portable, non‑contact sensor.  It won’t replace proper measurement hardware any time soon, but with the right processing it can offer useful insight for education, quick diagnostics or hobby projects.  Future improvements in sampling rate, measurement range and access to raw depth points could make smartphone LiDAR a serious player in structural health monitoring:contentReference[oaicite:25]{index=25}.</p>
+
+<hr />
+
+<p><em>Citation:</em> This summary is based on Gledson Rodrigo Tondo, Charles Riley and Guido Morgenthal, “Characterization of the iPhone LiDAR‑Based Sensing System for Vibration Measurement and Modal Analysis,” <em>Sensors</em> <strong>23</strong> (2023) 7832:contentReference[oaicite:26]{index=26}.</p>]]></content><author><name>Gledson Tondo</name></author><category term="LiDAR" /><category term="Modal Analysis" /><category term="Structural Health Monitoring" /><summary type="html"><![CDATA[If you’ve ever wondered what that little black circle on the back of your iPhone does besides taking cool portrait shots, you’re not alone. The latest iPhone Pro models come with a tiny LiDAR sensor that measures depth by timing how long it takes light to bounce back. It’s meant for augmented reality, but could it also double as a vibration sensor? That’s exactly what a recent paper by Gledson Tondo, Charles Riley and Guido Morgenthal set out to explore:contentReference[oaicite:0]{index=0}. Instead of taking these devices at face value, the authors put the iPhone 13 Pro’s LiDAR through its paces. They looked at how far away it needs to be, how much noise it makes and how to squeeze proper modal parameters out of it. Along the way they used a laser displacement transducer (LDT) as a gold‑standard reference and even tried a full modal test on a tall cantilever beam. This post follows their journey and keeps things relaxed and conversational.]]></summary></entry><entry><title type="html">Physics-informed Gaussian processes for Euler–Bernoulli beams</title><link href="http://localhost:4000/gaussian%20process/physics%20informed/mechanical%20model/2022/11/20/Physics-informed-GPs-Beam.html" rel="alternate" type="text/html" title="Physics-informed Gaussian processes for Euler–Bernoulli beams" /><published>2022-11-20T10:00:00+01:00</published><updated>2022-11-20T10:00:00+01:00</updated><id>http://localhost:4000/gaussian%20process/physics%20informed/mechanical%20model/2022/11/20/Physics-informed-GPs-Beam</id><content type="html" xml:base="http://localhost:4000/gaussian%20process/physics%20informed/mechanical%20model/2022/11/20/Physics-informed-GPs-Beam.html"><![CDATA[<p>One of the best things about probabilistic machine learning is that it doesn’t just give you an answer — it tells you how sure it is about that answer. <a href="/gaussian%20process/regression/2020/10/04/General-GPs.html" target="_blank">Gaussian processes</a> (GPs) are the go-to model for this because they treat unknown functions as probability distributions, and they let us do some really handy things like conditioning on data, taking derivatives, and keeping all the maths neat and analytical.</p>
 
 <p>Now, if you take a GP and combine it with the actual equations that describe your physical system, you get what’s called a <strong>physics-informed Gaussian process</strong>. In this post, you’ll see how we can combined the <em>Euler–Bernoulli beam equation</em> with a multi-output GP to jointly work out deflections, rotations, strains, and internal forces in a beam — and even update uncertain material parameters — straight from observed data. This has been presented during the IABSE Symposium in Prague, CZ. A preprint of the paper is available at <a href="https://doi.org/10.48550/arXiv.2308.02894" target="_blank">arXiv</a>.</p>
 
@@ -93,7 +260,7 @@ Damage detection — larger Mahalanobis distances identify damage location and s
 
 <p>This physics-informed multi-output GP approach blends structural mechanics with Bayesian learning in a really natural way. By encoding the beam equation directly into the covariance, we get physically consistent predictions from sparse, noisy data, plus uncertainties on both states and parameters. It’s robust, can detect damage, and even spots dodgy sensors.</p>
 
-<p>The main drawback? Computational cost grows fast with the number of data points — so high-quality, well-placed sensors are key. But it should be interesting to see extensions of this method this to plates, dynamic problems, and non-stationary kernels in the future.</p>]]></content><author><name>Gledson Tondo</name></author><category term="Gaussian Process" /><category term="Physics Informed" /><category term="Mechanical Model" /><summary type="html"><![CDATA[One of the best things about probabilistic machine learning is that it doesn’t just give you an answer — it tells you how sure it is about that answer. Gaussian processes (GPs) are the go-to model for this because they treat unknown functions as probability distributions, and they let us do some really handy things like conditioning on data, taking derivatives, and keeping all the maths neat and analytical.]]></summary></entry><entry><title type="html">Gaussian processes for regression</title><link href="http://localhost:4000/gaussian%20process/regression/2020/10/04/General-GPs.html" rel="alternate" type="text/html" title="Gaussian processes for regression" /><published>2020-10-04T08:52:00+02:00</published><updated>2020-10-04T08:52:00+02:00</updated><id>http://localhost:4000/gaussian%20process/regression/2020/10/04/General-GPs</id><content type="html" xml:base="http://localhost:4000/gaussian%20process/regression/2020/10/04/General-GPs.html"><![CDATA[<p>Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent <a href="https://www.forbes.com/sites/bernardmarr/2018/04/30/27-incredible-examples-of-ai-and-machine-learning-in-practice/#53826aa17502" target="_blank">examples</a>. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only <em>what</em> a model predicts, but <em>how confident</em> it is about those predictions.</p>
+<p>The main drawback? Computational cost grows fast with the number of data points — so high-quality, well-placed sensors are key. But it should be interesting to see extensions of this method this to plates, dynamic problems, and non-stationary kernels in the future.</p>]]></content><author><name>Gledson Tondo</name></author><category term="Gaussian Process" /><category term="Physics Informed" /><category term="Mechanical Model" /><summary type="html"><![CDATA[One of the best things about probabilistic machine learning is that it doesn’t just give you an answer — it tells you how sure it is about that answer. Gaussian processes (GPs) are the go-to model for this because they treat unknown functions as probability distributions, and they let us do some really handy things like conditioning on data, taking derivatives, and keeping all the maths neat and analytical. Now, if you take a GP and combine it with the actual equations that describe your physical system, you get what’s called a physics-informed Gaussian process. In this post, you’ll see how we can combined the Euler–Bernoulli beam equation with a multi-output GP to jointly work out deflections, rotations, strains, and internal forces in a beam — and even update uncertain material parameters — straight from observed data. This has been presented during the IABSE Symposium in Prague, CZ. A preprint of the paper is available at arXiv.]]></summary></entry><entry><title type="html">Gaussian processes for regression</title><link href="http://localhost:4000/gaussian%20process/regression/2020/10/04/General-GPs.html" rel="alternate" type="text/html" title="Gaussian processes for regression" /><published>2020-10-04T08:52:00+02:00</published><updated>2020-10-04T08:52:00+02:00</updated><id>http://localhost:4000/gaussian%20process/regression/2020/10/04/General-GPs</id><content type="html" xml:base="http://localhost:4000/gaussian%20process/regression/2020/10/04/General-GPs.html"><![CDATA[<p>Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent <a href="https://www.forbes.com/sites/bernardmarr/2018/04/30/27-incredible-examples-of-ai-and-machine-learning-in-practice/#53826aa17502" target="_blank">examples</a>. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only <em>what</em> a model predicts, but <em>how confident</em> it is about those predictions.</p>
 
 <p>This is where probabilistic machine learning comes in. Instead of giving just one answer, these models tell us a range of possible answers along with how likely each one is. One of the most powerful and elegant tools for this is the <strong>Gaussian Process</strong> (GPs).</p>
 
@@ -161,4 +328,4 @@ For example, if \(f(x) = x^2\) is a deterministic function, a stochastic version
 
 <p>The interactive example below shows how a GP works in practice. You can change the kernel parameters and see how the prior changes. Then, by clicking on the plot, you can add data points and watch how the model adapts.</p>
 
-<iframe style="width:100%;height:770px;" frameborder="0.05em" src="/gp.html" title="GP Implementation"></iframe>]]></content><author><name>Gledson Tondo</name></author><category term="Gaussian Process" /><category term="Regression" /><summary type="html"><![CDATA[Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent examples. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only what a model predicts, but how confident it is about those predictions.]]></summary></entry></feed>
+<iframe style="width:100%;height:770px;" frameborder="0.05em" src="/gp.html" title="GP Implementation"></iframe>]]></content><author><name>Gledson Tondo</name></author><category term="Gaussian Process" /><category term="Regression" /><summary type="html"><![CDATA[Machine learning models can be pretty impressive — sometimes almost magical — when you see them in action. They can diagnose diseases, control robots, or even help scientists design new materials, as shown in some recent examples. But they’re not perfect. Every now and then, a model behaves in strange ways. That’s why it’s worth asking not only what a model predicts, but how confident it is about those predictions. This is where probabilistic machine learning comes in. Instead of giving just one answer, these models tell us a range of possible answers along with how likely each one is. One of the most powerful and elegant tools for this is the Gaussian Process (GPs).]]></summary></entry></feed>

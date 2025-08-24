@@ -1,6 +1,18 @@
 [
   
     {
+      "title"    : "Can your iPhone LiDAR measure vibrations? A friendly dive into modal analysis",
+      "title-lower"    : "can your iphone lidar measure vibrations? a friendly dive into modal analysis",
+      "sub-titile" : "",
+      "sub-titile-lower" : "",
+      "categories" : "LiDARModal AnalysisStructural Health Monitoring",
+      "tags"     : "",
+      "url"      : "/lidar/modal%20analysis/structural%20health%20monitoring/2023/09/12/LiDAR-Vibration.html",
+      "date"     : "2023-09-12 11:00:00 +0200",
+      "content"     : "If you’ve ever wondered what that little black circle on the back of your iPhone does besides taking cool portrait shots, you’re not alone.  The latest iPhone Pro models come with a tiny LiDAR sens..."
+    } ,
+  
+    {
       "title"    : "Physics-informed Gaussian processes for Euler–Bernoulli beams",
       "title-lower"    : "physics-informed gaussian processes for euler–bernoulli beams",
       "sub-titile" : "",
