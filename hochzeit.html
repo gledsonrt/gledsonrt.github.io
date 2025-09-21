@@ -1,8 +1,413 @@
 <!doctype html>
 <html lang="en">
-  <head>
-  </head>
-  <body>
-    Nothing to see here.
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Morgana & Gledson — Wedding Gallery</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#2b2b2b; --muted:#6b6b6b; --accent:#5d7d6f; --soft:#f5f6f5; --gold:#c9a76a;
+    }
+    html,body{margin:0;padding:0;color:var(--ink);background:#fff;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";}
+    header{
+      background:linear-gradient(-180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.99)), url('assets/save-the-date.png') center/cover no-repeat;
+      border-bottom:0px solid #eee; text-align:center; padding:3rem 1rem 5rem 1rem;
+    }
+    header h1{font-family:"Playfair Display", serif; font-size:clamp(1.8rem, 4vw, 3rem); margin:0.2rem 0; letter-spacing:0.02em}
+    header p{color:var(--muted); margin:0.2rem 0}
+    .wrap{max-width:1100px; margin:0 auto; padding:1.25rem}
+    .toolbar{position:sticky; top:0; z-index:50; backdrop-filter:blur(8px); background:rgba(255,255,255,0.85); border-bottom:1px solid #eaeaea}
+    .toolbar .inner{display:flex; gap:.75rem; align-items:center; justify-content:space-between; padding:.75rem 1.25rem}
+    .btn{appearance:none; border:1px solid #ddd; background:#fff; color:var(--ink); padding:.6rem .9rem; border-radius:999px; font-weight:600}
+    .btn:hover{border-color:#bbb}
+    .btn.primary{background:var(--accent); color:#fff; border-color:transparent}
+    .btn.primary:hover{filter:brightness(0.95)}
+    .btn.ghost{background:transparent}
+    .meta{color:var(--muted); font-size:.95rem}
+
+    /* Gallery */
+    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px}
+    .card{position:relative; border-radius:16px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.05); background:#fff}
+    .card img{display:block; width:100%; height:220px; object-fit:cover; transition:transform .2s ease}
+    .card:hover img{transform:scale(1.02)}
+    .card .overlay{position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:space-between; gap:.5rem; padding:.5rem; background:linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.45)); color:#fff; opacity:0; transition:opacity .2s}
+    .card:hover .overlay{opacity:1}
+    .card .title{font-size:.9rem; font-weight:600}
+    .card .actions{display:flex; gap:.4rem}
+    .chip{font-size:.8rem; padding:.35rem .6rem; border-radius:999px; border:1px solid rgba(255,255,255,.6); background:rgba(0,0,0,.25); color:#fff; text-decoration:none}
+
+    /* Selection checkmarks */
+    .select-box{position:absolute; top:10px; left:10px; width:28px; height:28px; border-radius:8px; background:rgba(255,255,255,.9); border:1px solid #ddd; display:grid; place-items:center}
+    .select-box input{display:none}
+    .tick{width:18px; height:18px; border-radius:6px; border:2px solid var(--accent)}
+    .select-box input:checked + .tick{background:var(--accent)}
+
+    /* Lightbox */
+    dialog#lightbox{border:none; padding:0; width:min(96vw,1200px); max-width:96vw;}
+    dialog#lightbox::backdrop{background:rgba(0,0,0,.65)}
+    .lightbox-wrap{position:relative; background:#000}
+    .lightbox-ui{ display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+	   .lightbox-btn{font-size:.8rem; padding:.35rem .6rem; border-radius:999px; border:1px solid rgba(0,0,0,.35); background:rgba(0,0,0,.80); color:#fff; text-decoration:none; transition:transform .3s ease, box-shadow .3s ease, background .3s ease, border-color .3s ease, filter .4s ease; -webkit-tap-highlight-color:transparent;}
+      .lightbox-btn:hover{
+      background:rgba(255,255,255,.16);
+      border-color:rgba(255,255,255,.38);
+      transform:translateY(0px);
+    }
+	   #lbPrev{ left:8px; }
+	   #lbNext{ right:8px; }
+	   .lightbox-img{ flex:1 1 auto; min-width:0; max-width:100%; height:80vh; object-fit:contain; background:#000}
+
+
+    .lightbox-top{position:absolute; top:8px; left:8px; right:8px; display:flex; justify-content:space-between; gap:.5rem}
+    .lightbox-top .right{display:flex; gap:.5rem}
+
+    /* Footer */
+    footer{border-top:1px solid #eee; color:var(--muted); text-align:center; padding:2rem 1rem; margin-top:2rem}
+
+    /* Small helpers */
+    .hidden{display:none !important}
+    .sr{position:absolute; width:1px; height:1px; padding:0; margin:-1px; clip:rect(0,0,0,0); border:0; overflow:hidden}
+
+
+    .card { position: relative; }                    /* already present, re-stated for clarity */
+    .card .overlay { z-index: 1; }                   /* push overlay below the checkbox */
+    .select-box { z-index: 2; }                      /* raise checkbox above the overlay */
+
+    /* optional: ensure overlay never steals clicks from the checkbox */
+    .card .overlay { pointer-events: none; }
+    .card .overlay .actions .chip { pointer-events: auto; } 
+
+    .lightbox-btn,
+    .chip,
+    .actions button,
+    .actions .chip,
+    #lbPrev,
+    #lbNext,
+    #lbClose {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Morgana &amp; Gledson</h1>
+    <p>Wedding Gallery — 02·08·2025</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="inner wrap">
+      <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap">
+        <button id="toggleSelect" class="btn">Select photos</button>
+        <button id="selectAll" class="btn ghost hidden">Select all</button>
+        <button id="clearSel" class="btn ghost hidden">Clear</button>
+        <button id="downloadSel" class="btn primary hidden">Download selected (<span id="selCount">0</span>)</button>
+      </div>
+      <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap">
+        <a id="uploadButton" class="btn" href="#uploads">Share your photos</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="intro" style="margin:1rem 0 1.25rem 0">
+      <p class="meta" data-i18n="gallery.instructions">Durchsuche die Galerie unten. Klicke auf ein beliebiges Foto, um es in voller Grösse anzuzeigen. Verwende „Fotos auswählen“, um mehrere Elemente auszuwählen und sie gemeinsam als .zip-Datei herunterzuladen. <br><br> Navegue pela galeria abaixo. Clique em qualquer foto para visualizá-la em tamanho completo. Use “Selecionar fotos” para escolher vários itens e descarregá-los juntos como um arquivo .zip.</p>
+    </section>
+
+    <section id="gallery" class="grid" aria-live="polite"></section>
+
+    <section id="uploads" style="margin-top:2rem">
+      <h2 style="font-family:'Playfair Display',serif; font-size:1.5rem; margin:.5rem 0 0.25rem 0">Share your photos</h2>
+      <p class="meta"  data-i18n="gallery.uploadinstructions">Wenn ihr während unserer Hochzeit Fotos gemacht habt, würden wir uns sehr darüber freuen! Klickt auf den untenstehenden Link, und es öffnet sich ein Formular. Unter „Datei hinzufügen“ wählt eure Bilder aus und klickt auf „Hochladen“. Vielen Dank fürs Teilen! <br><br> Se tirou fotos durante o nosso casamento, gostaríamos muito de tê-las! Clique no link abaixo e um formulário será aberto. Em “Adicionar arquivo”, selecione as suas fotos e clique em "Upload". Obrigado por compartilhar!
+      </p>
+      <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:.6rem">
+        <!-- Replace the href with the link to your Google Form once created. You may also embed the form instead of linking. -->
+        <a class="btn primary" href="https://forms.gle/piN9CyLmdbjUiU6f8" target="_blank" rel="noopener">Open upload form</a>
+        <!--a class="btn" href="mailto:you@example.com?subject=Wedding%20photos&body=Please%20attach%20your%20favourite%20shots%20from%20the%20day%20%E2%80%94%20thank%20you!">Email your photos</a-->
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>With love — M &amp; G</small>
+  </footer>
+
+  <!-- Lightbox modal -->
+  <dialog id="lightbox" aria-label="Photo viewer">
+    <div class="lightbox-wrap">
+      <div class="lightbox-top">
+        <button class="lightbox-btn" id="lbClose" aria-label="Close">✕</button>
+        <div class="right">
+          <a id="lbDownload" class="lightbox-btn" download>Download</a>
+        </div>
+      </div>
+      <div class="lightbox-ui">
+        <button class="lightbox-btn" id="lbPrev" aria-label="Previous">◀</button>
+        <img id="lbImg" class="lightbox-img" alt="Selected photograph" />
+        <button class="lightbox-btn" id="lbNext" aria-label="Next">▶</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Dependencies for zipping downloads -->
+  <!-- JSZip 3.10.1 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+        integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- FileSaver 2.0.5 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"
+        integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    const photos = [
+  { id: 'MG_075', title: '', thumb: 'photos/thumbs/Photo78.jpg', full: 'photos/full/Photo78.jpg' },
+  { id: 'MG_043', title: '', thumb: 'photos/thumbs/Photo49.jpg', full: 'photos/full/Photo49.jpg' },
+  { id: 'MG_047', title: '', thumb: 'photos/thumbs/Photo52.jpg', full: 'photos/full/Photo52.jpg' },
+  { id: 'MG_064', title: '', thumb: 'photos/thumbs/Photo68.jpg', full: 'photos/full/Photo68.jpg' },
+  { id: 'MG_048', title: '', thumb: 'photos/thumbs/Photo53.jpg', full: 'photos/full/Photo53.jpg' },  
+  { id: 'MG_049', title: '', thumb: 'photos/thumbs/Photo54.jpg', full: 'photos/full/Photo54.jpg' },
+  { id: 'MG_050', title: '', thumb: 'photos/thumbs/Photo55.jpg', full: 'photos/full/Photo55.jpg' },
+  { id: 'MG_051', title: '', thumb: 'photos/thumbs/Photo56.jpg', full: 'photos/full/Photo56.jpg' },
+  { id: 'MG_052', title: '', thumb: 'photos/thumbs/Photo57.jpg', full: 'photos/full/Photo57.jpg' },
+  { id: 'MG_053', title: '', thumb: 'photos/thumbs/Photo58.jpg', full: 'photos/full/Photo58.jpg' },
+  { id: 'MG_054', title: '', thumb: 'photos/thumbs/Photo59.jpg', full: 'photos/full/Photo59.jpg' },
+  { id: 'MG_056', title: '', thumb: 'photos/thumbs/Photo60.jpg', full: 'photos/full/Photo60.jpg' },
+  { id: 'MG_057', title: '', thumb: 'photos/thumbs/Photo61.jpg', full: 'photos/full/Photo61.jpg' },
+  { id: 'MG_058', title: '', thumb: 'photos/thumbs/Photo62.jpg', full: 'photos/full/Photo62.jpg' },
+  { id: 'MG_059', title: '', thumb: 'photos/thumbs/Photo63.jpg', full: 'photos/full/Photo63.jpg' },
+  { id: 'MG_060', title: '', thumb: 'photos/thumbs/Photo64.jpg', full: 'photos/full/Photo64.jpg' },
+  { id: 'MG_061', title: '', thumb: 'photos/thumbs/Photo65.jpg', full: 'photos/full/Photo65.jpg' },
+  { id: 'MG_062', title: '', thumb: 'photos/thumbs/Photo66.jpg', full: 'photos/full/Photo66.jpg' },
+  { id: 'MG_063', title: '', thumb: 'photos/thumbs/Photo67.jpg', full: 'photos/full/Photo67.jpg' },  
+  { id: 'MG_065', title: '', thumb: 'photos/thumbs/Photo69.jpg', full: 'photos/full/Photo69.jpg' },
+  { id: 'MG_067', title: '', thumb: 'photos/thumbs/Photo70.jpg', full: 'photos/full/Photo70.jpg' },
+  { id: 'MG_068', title: '', thumb: 'photos/thumbs/Photo71.jpg', full: 'photos/full/Photo71.jpg' },
+  { id: 'MG_069', title: '', thumb: 'photos/thumbs/Photo72.jpg', full: 'photos/full/Photo72.jpg' },
+  { id: 'MG_070', title: '', thumb: 'photos/thumbs/Photo73.jpg', full: 'photos/full/Photo73.jpg' },
+  { id: 'MG_071', title: '', thumb: 'photos/thumbs/Photo74.jpg', full: 'photos/full/Photo74.jpg' },
+  { id: 'MG_072', title: '', thumb: 'photos/thumbs/Photo75.jpg', full: 'photos/full/Photo75.jpg' },
+  { id: 'MG_073', title: '', thumb: 'photos/thumbs/Photo76.jpg', full: 'photos/full/Photo76.jpg' },
+  { id: 'MG_074', title: '', thumb: 'photos/thumbs/Photo77.jpg', full: 'photos/full/Photo77.jpg' },
+  
+];
+
+    const ZIP_NAME = 'Morgana-Gledson-selected-photos.zip';
+
+    const galleryEl = document.getElementById('gallery');
+    const selCountEl = document.getElementById('selCount');
+    const toggleBtn = document.getElementById('toggleSelect');
+    const selectAllBtn = document.getElementById('selectAll');
+    const clearBtn = document.getElementById('clearSel');
+    const downloadSelBtn = document.getElementById('downloadSel');
+    const state = { selectMode:false, selected:new Set(), index:0 };
+
+    function renderGallery(){
+    galleryEl.innerHTML = '';
+    photos.forEach((p, idx)=>{
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.setAttribute('data-index', idx);   // NEW
+      card.innerHTML = `
+        <label class="select-box ${state.selectMode?'':'hidden'}">
+          <input type="checkbox" data-id="${p.id}" ${state.selected.has(p.id)?'checked':''} />
+          <span class="tick"></span>
+        </label>
+        <img src="${p.thumb}" alt="${p.title}" loading="lazy" />
+        <div class="overlay">
+          <span class="title">${p.title || ''}</span>
+          <span class="actions">
+            <a class="chip" href="${p.full}" download>Download</a>
+            <button class="chip" data-view="${idx}">View</button>
+          </span>
+        </div>`;
+      galleryEl.appendChild(card);
+    });
+  }
+
+    // Toggle selection mode
+    toggleBtn.addEventListener('click', ()=>{
+      state.selectMode = !state.selectMode;
+      toggleBtn.textContent = state.selectMode ? 'Finish selecting' : 'Select photos';
+      [selectAllBtn, clearBtn, downloadSelBtn].forEach(b=>b.classList.toggle('hidden', !state.selectMode));
+      renderGallery();
+    });
+
+    // Card interactions (event delegation)
+    galleryEl.addEventListener('click', (e)=>{
+    const card = e.target.closest('.card');
+    if(!card) return;
+    if (e.target.closest('label.select-box') || e.target.closest('input[type="checkbox"]')) return;
+    if (e.target.closest('a[download]')) return; // keep single-file download working
+    const idx = Number(card.getAttribute('data-index'));
+    if (!Number.isNaN(idx)) openLightbox(idx);
+  });
+
+    galleryEl.addEventListener('change', (e)=>{
+      if(e.target.matches('input[type="checkbox"][data-id]')){
+        const id = e.target.getAttribute('data-id');
+        e.target.checked ? state.selected.add(id) : state.selected.delete(id);
+        selCountEl.textContent = state.selected.size;
+      }
+    });
+
+    selectAllBtn.addEventListener('click', ()=>{
+      photos.forEach(p=>state.selected.add(p.id));
+      selCountEl.textContent = state.selected.size;
+      renderGallery();
+    });
+
+    clearBtn.addEventListener('click', ()=>{
+      state.selected.clear();
+      selCountEl.textContent = 0;
+      renderGallery();
+    });
+
+    // Zip & download selected
+    async function fetchAsBlob(url){
+      const res = await fetch(url, {mode:'cors'});
+      if(!res.ok) throw new Error('Failed to fetch '+url);
+      return await res.blob();
+    }
+
+    downloadSelBtn.addEventListener('click', async ()=>{
+      if(!state.selected.size){ alert('No photos selected.'); return; }
+      downloadSelBtn.disabled = true; downloadSelBtn.textContent = 'Preparing…';
+      try {
+        const zip = new JSZip();
+        const chosen = photos.filter(p=>state.selected.has(p.id));
+        for(const p of chosen){
+          const blob = await fetchAsBlob(p.full);
+          const ext = (p.full.split('.').pop()||'jpg').split('?')[0];
+          zip.file(`${p.id}.${ext}`, blob);
+        }
+        const content = await zip.generateAsync({type:'blob'});
+        saveAs(content, ZIP_NAME);
+      } catch(err){
+        console.error(err);
+        alert('Could not create the zip. If files are hosted on another domain, ensure CORS is allowed.');
+      } finally {
+        downloadSelBtn.disabled = false; downloadSelBtn.textContent = `Download selected (${state.selected.size})`;
+      }
+    });
+
+    // Lightbox
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lbImg');
+    const lbPrev = document.getElementById('lbPrev');
+    const lbNext = document.getElementById('lbNext');
+    const lbClose = document.getElementById('lbClose');
+    const lbDownload = document.getElementById('lbDownload');
+
+    function openLightbox(i){ state.index = i; updateLightbox(); lb.showModal(); }
+    function updateLightbox(){
+	  const p = photos[state.index];
+	  const url = encodeURI(p.thumb);
+    const urlFull = encodeURI(p.full);
+	  lbImg.src = url;
+	  lbDownload.href = urlFull;
+	}
+    lbPrev.addEventListener('click', ()=>{ state.index = (state.index-1+photos.length)%photos.length; updateLightbox(); });
+    lbNext.addEventListener('click', ()=>{ state.index = (state.index+1)%photos.length; updateLightbox(); });
+    lbClose.addEventListener('click', ()=> lb.close());
+    lb.addEventListener('click', (e)=>{ if(e.target===lb) lb.close(); });
+    window.addEventListener('keydown', (e)=>{ if(!lb.open) return; if(e.key==='Escape') lb.close(); if(e.key==='ArrowLeft') lbPrev.click(); if(e.key==='ArrowRight') lbNext.click(); });
+
+    // Init
+    renderGallery();
+
+    const I18N = {
+      "en": {
+        "gallery.instructions":
+          'Browse the gallery below. Click any photo to view it full size. Use “Select photos” to choose multiple items and download them together as a .zip file.',
+          "gallery.uploadinstructions":
+          'If you have taken pictures during our wedding, we would love to have them! Click on the link below and a form will open. On "Add File", select your pictures and click on upload. Thank you for sharing!',
+      },
+      "de": {
+        "gallery.instructions":
+          'Durchsuche die Galerie unten. Klicke auf ein beliebiges Foto, um es in voller Größe anzuzeigen. Verwende „Fotos auswählen“, um mehrere Elemente auszuwählen und sie gemeinsam als .zip-Datei herunterzuladen.',
+          "gallery.uploadinstructions":
+          'Wenn ihr während unserer Hochzeit Fotos gemacht habt, würden wir uns sehr darüber freuen! Klickt auf den untenstehenden Link, und es öffnet sich ein Formular. Unter „Datei hinzufügen“ wählt eure Bilder aus und klickt auf „Hochladen“. Vielen Dank fürs Teilen!',
+      },
+      "de-CH": {
+        "gallery.instructions":
+          'Durchsuche die Galerie unten. Klicke auf ein beliebiges Foto, um es in voller Grösse anzuzeigen. Verwende «Fotos auswählen», um mehrere Elemente auszuwählen und sie gemeinsam als .zip-Datei herunterzuladen.',
+          "gallery.uploadinstructions":
+          'Wenn ihr während unserer Hochzeit Fotos gemacht habt, würden wir uns sehr darüber freuen! Klickt auf den untenstehenden Link, und es öffnet sich ein Formular. Unter „Datei hinzufügen“ wählt eure Bilder aus und klickt auf „Hochladen“. Vielen Dank fürs Teilen!',
+      },
+      "pt-PT": {
+        "gallery.instructions":
+          'Navega pela galeria abaixo. Clica em qualquer fotografia para a veres em tamanho completo. Usa “Selecionar fotografias” para escolher vários itens e transferi-los em conjunto como um ficheiro .zip.',
+          "gallery.uploadinstructions":
+          'Se tirou fotos durante o casamento, gostaríamos muito de tê-las! Clique no link abaixo e um formulário será aberto. Em “Adicionar arquivo”, selecione as suas fotos e clique em "Upload". Obrigado por compartilhar!',
+      },
+      "pt-BR": {
+        "gallery.instructions":
+          'Navegue pela galeria abaixo. Clique em qualquer foto para visualizá-la em tamanho completo. Use “Selecionar fotos” para escolher vários itens e baixá-los juntos como um arquivo .zip.',
+          "gallery.uploadinstructions":
+          'Se tirou fotos durante o casamento, gostaríamos muito de tê-las! Clique no link abaixo e um formulário será aberto. Em “Adicionar arquivo”, selecione as suas fotos e clique em "Upload". Obrigado por compartilhar!',
+      }
+    };
+
+    function resolveLanguage() {
+      const stored = localStorage.getItem("langOverride");
+      if (stored && stored !== "auto") return stored;
+
+      const prefs = navigator.languages && navigator.languages.length
+        ? navigator.languages
+        : [navigator.language || "en"];
+
+      for (const tag of prefs) {
+        const norm = tag.trim();
+        if (I18N[norm]) return norm;                 // exact match (e.g. pt-BR)
+        const base = norm.split("-")[0];
+        if (I18N[base]) return base;                 // base match (e.g. pt)
+        // Custom mapping: Swiss German → de-CH if requested
+        if (base === "de" && norm.toUpperCase().includes("CH") && I18N["de-CH"]) return "de-CH";
+        if (base === "pt") {
+          // Prefer regional variants if available; fallback to pt-PT
+          if (norm.toUpperCase().includes("BR") && I18N["pt-BR"]) return "pt-BR";
+          if (I18N["pt-PT"]) return "pt-PT";
+        }
+      }
+      return "en";
+    }
+
+    // 3) Apply translations to all elements with data-i18n
+    function applyI18n(lang) {
+      const dict = I18N[lang] || I18N["en"];
+      document.documentElement.lang = lang.startsWith("de") ? "de" :
+                                      lang.startsWith("pt") ? "pt" : "en";
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) el.innerHTML = dict[key];
+      });
+      // Update switcher UI
+      const sel = document.getElementById("lang-switch");
+      if (sel) sel.value = localStorage.getItem("langOverride") || "auto";
+    }
+
+    // 4) Initialise
+    const effectiveLang = resolveLanguage();
+    applyI18n(effectiveLang);
+
+    // 5) Allow manual override via the select, persisted in localStorage
+    const switcher = document.getElementById("lang-switch");
+    if (switcher) {
+      switcher.addEventListener("change", (e) => {
+        const val = e.target.value;
+        if (val === "auto") {
+          localStorage.removeItem("langOverride");
+          applyI18n(resolveLanguage());
+        } else {
+          localStorage.setItem("langOverride", val);
+          applyI18n(val);
+        }
+      });
+    }
+  </script>
+
+</body>
 </html>
+
